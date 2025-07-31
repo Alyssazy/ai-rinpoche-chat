@@ -85,13 +85,22 @@ class AIRinpocheChat {
     }
 
     clearInvalidConversation() {
-        // 清理可能存在的无效会话ID
-        const savedConversationId = sessionStorage.getItem('conversationId');
-        if (savedConversationId) {
-            console.log('发现已保存的会话ID，正在清理以开始新对话:', savedConversationId);
+        // 🔧 修复：只在明确需要时清理会话ID，保持多轮对话能力
+        const shouldClear = sessionStorage.getItem('forceClearConversation');
+        
+        if (shouldClear) {
+            console.log('🧹 检测到强制清理标志，清理会话ID');
             sessionStorage.removeItem('conversationId');
             sessionStorage.removeItem('chatHistory');
+            sessionStorage.removeItem('forceClearConversation');
             this.conversationId = null;
+        } else {
+            // 恢复已保存的会话ID，支持多轮对话
+            const savedConversationId = sessionStorage.getItem('conversationId');
+            if (savedConversationId) {
+                this.conversationId = savedConversationId;
+                console.log('✅ 恢复会话ID以支持多轮对话:', savedConversationId);
+            }
         }
     }
 
@@ -209,6 +218,7 @@ class AIRinpocheChat {
         } catch (error) {
             console.error('API调用失败:', error);
             let errorMessage = '抱歉，我现在无法回应您的问题。';
+            let debugInfo = '';
             
             if (error.message.includes('401')) {
                 errorMessage = 'API密钥无效，请检查您的Dify API密钥配置。';
@@ -216,15 +226,27 @@ class AIRinpocheChat {
                 errorMessage = 'API访问被拒绝，请检查您的权限设置。';
             } else if (error.message.includes('429')) {
                 errorMessage = 'API调用频率过高，请稍后再试。';
+            } else if (error.message.includes('400')) {
+                errorMessage = '请求参数错误。可能是会话ID无效，正在重置对话...'; 
+                // 🔧 重置无效的conversation_id
+                this.conversationId = null;
+                sessionStorage.removeItem('conversationId');
+                debugInfo = `\n\n🔧 检测到会话ID可能无效，已重置。请重新发送消息开始新对话。`;
             } else if (error.message.includes('Failed to fetch')) {
                 errorMessage = '网络连接失败，请检查网络连接或CORS设置。';
             } else if (error.message.includes('请求超时')) {
                 errorMessage = '响应时间过长，请稍后重试或尝试简化问题。提示：过长或复杂的问题可能需要更多时间。';
             } else if (error.message.includes('请求已取消')) {
                 errorMessage = '请求已取消，请重新发送消息。';
+            } else {
+                // 🔧 显示更详细的错误信息用于调试
+                debugInfo = `\n\n🐞 调试信息: ${error.message}`;
+                if (this.conversationId) {
+                    debugInfo += `\n当前会话ID: ${this.conversationId}`;
+                }
             }
             
-            this.addMessage('ai', errorMessage);
+            this.addMessage('ai', errorMessage + debugInfo);
         } finally {
             this.setLoading(false);
         }
@@ -250,8 +272,12 @@ class AIRinpocheChat {
             user: 'user-' + Date.now()
         };
 
+        // 🔧 修复：正确传递conversation_id，增加调试信息
         if (this.conversationId && this.conversationId.trim() !== '') {
             requestBody.conversation_id = this.conversationId;
+            console.log('📤 流式模式使用现有会话ID:', this.conversationId);
+        } else {
+            console.log('🆕 流式模式开始新会话，未提供会话ID');
         }
 
         try {
@@ -279,8 +305,16 @@ class AIRinpocheChat {
                 console.error('API错误详情:', {
                     status: response.status,
                     statusText: response.statusText,
-                    body: errorText
+                    body: errorText,
+                    conversationId: this.conversationId,
+                    requestBody: requestBody
                 });
+                
+                // 🔧 特殊处理400错误，通常意味着conversation_id无效
+                if (response.status === 400 && this.conversationId) {
+                    console.warn('⚠️ 400错误可能是由于无效的conversation_id，将在下次请求时重置');
+                }
+                
                 throw new Error(`API请求失败: ${response.status} - ${response.statusText}`);
             }
 
@@ -336,8 +370,12 @@ class AIRinpocheChat {
             user: 'user-' + Date.now()
         };
 
+        // 🔧 修复：正确传递conversation_id，增加调试信息
         if (this.conversationId && this.conversationId.trim() !== '') {
             requestBody.conversation_id = this.conversationId;
+            console.log('📤 阻塞模式使用现有会话ID:', this.conversationId);
+        } else {
+            console.log('🆕 阻塞模式开始新会话，未提供会话ID');
         }
 
         try {
@@ -365,16 +403,34 @@ class AIRinpocheChat {
                 console.error('API错误详情:', {
                     status: response.status,
                     statusText: response.statusText,
-                    body: errorText
+                    body: errorText,
+                    conversationId: this.conversationId,
+                    requestBody: requestBody
                 });
+                
+                // 🔧 特殊处理400错误，通常意味着conversation_id无效
+                if (response.status === 400 && this.conversationId) {
+                    console.warn('⚠️ 400错误可能是由于无效的conversation_id，将在下次请求时重置');
+                }
+                
                 throw new Error(`API请求失败: ${response.status} - ${response.statusText}`);
             }
 
             const data = await response.json();
             
-            if (data.conversation_id && !this.conversationId) {
-                this.conversationId = data.conversation_id;
-                this.saveConversationId();
+            // 🔧 修复：正确管理conversation_id，支持多轮对话
+            if (data.conversation_id) {
+                if (!this.conversationId) {
+                    // 第一次对话，保存新的conversation_id
+                    this.conversationId = data.conversation_id;
+                    this.saveConversationId();
+                    console.log('🆕 保存新会话ID:', this.conversationId);
+                } else if (this.conversationId !== data.conversation_id) {
+                    // conversation_id发生变化，更新
+                    console.log('🔄 会话ID更新:', this.conversationId, '->', data.conversation_id);
+                    this.conversationId = data.conversation_id;
+                    this.saveConversationId();
+                }
             }
 
             return data.answer || '抱歉，我没有收到有效的回复。';
@@ -1218,7 +1274,10 @@ class AIRinpocheChat {
 
     startNewChat() {
         this.clearHistory();
+        // 🔧 明确重置conversation_id和相关状态
         this.conversationId = null;
+        sessionStorage.removeItem('conversationId');
+        sessionStorage.setItem('forceClearConversation', 'true'); // 标记下次需要清理
         
         // 移动端自动关闭侧边栏
         if (window.innerWidth <= 768) {
@@ -1226,6 +1285,8 @@ class AIRinpocheChat {
         }
         this.lastUserMessage = null;
         sessionStorage.removeItem('currentConversationId');
+        
+        console.log('🆕 开始新对话，已重置所有状态');
         
         // 更新侧边栏活跃状态
         this.updateConversationsList();
@@ -1534,10 +1595,17 @@ class AIRinpocheChat {
                             
                             const data = JSON.parse(jsonStr);
                             
-                            // 保存conversation_id
-                            if (data.conversation_id && !this.conversationId) {
-                                this.conversationId = data.conversation_id;
-                                this.saveConversationId();
+                            // 🔧 修复：正确管理流式响应中的conversation_id
+                            if (data.conversation_id) {
+                                if (!this.conversationId) {
+                                    this.conversationId = data.conversation_id;
+                                    this.saveConversationId();
+                                    console.log('🆕 流式响应中保存新会话ID:', this.conversationId);
+                                } else if (this.conversationId !== data.conversation_id) {
+                                    console.log('🔄 流式响应中会话ID更新:', this.conversationId, '->', data.conversation_id);
+                                    this.conversationId = data.conversation_id;
+                                    this.saveConversationId();
+                                }
                             }
                             
                             // 处理流式内容
