@@ -17,6 +17,7 @@ class AIRinpocheChat {
         this.fallbackMode = false;
 
         this.initializeElements();
+        this.setupMobileSidebar();
         this.bindEvents();
         this.initializeTheme();
         this.clearInvalidConversation();
@@ -45,9 +46,6 @@ class AIRinpocheChat {
 
     bindEvents() {
         this.sendButton.addEventListener('click', () => this.sendMessage());
-        
-        // 移动端侧边栏控制
-        this.setupMobileSidebar();
         
         this.chatInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -1176,11 +1174,15 @@ class AIRinpocheChat {
         if (window.innerWidth <= 768) {
             // 移动端：默认收起侧边栏
             this.sidebar.classList.add('collapsed');
+            console.log('📱 移动端模式：侧边栏已收起');
         } else {
             // 桌面端：默认展开侧边栏
             this.sidebar.classList.remove('collapsed');
-            this.overlay.style.opacity = '0';
-            this.overlay.style.visibility = 'hidden';
+            if (this.overlay) {
+                this.overlay.style.opacity = '0';
+                this.overlay.style.visibility = 'hidden';
+            }
+            console.log('💻 桌面端模式：侧边栏已展开');
         }
     }
 
@@ -1735,5 +1737,16 @@ window.addEventListener('beforeunload', () => {
     const chatInstance = window.aiRinpocheChat;
     if (chatInstance && chatInstance.currentRequest) {
         chatInstance.currentRequest.abort();
+    }
+});
+
+// 页面完全加载后再次确保移动端侧边栏正确隐藏
+window.addEventListener('load', () => {
+    const chatInstance = window.aiRinpocheChat;
+    if (chatInstance) {
+        // 延迟一点确保所有CSS都已应用
+        setTimeout(() => {
+            chatInstance.checkScreenSize();
+        }, 100);
     }
 });

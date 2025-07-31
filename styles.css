@@ -703,11 +703,16 @@ body {
         left: 0;
         height: 100vh;
         z-index: 1001;
-        transform: translateX(-100%);
         transition: transform 0.3s ease;
         width: 280px; /* 固定宽度避免内容被挤压 */
     }
     
+    /* 移动端侧边栏默认隐藏 */
+    .sidebar.collapsed {
+        transform: translateX(-100%);
+    }
+    
+    /* 移动端侧边栏显示时 */
     .sidebar:not(.collapsed) {
         transform: translateX(0);
         box-shadow: var(--shadow-lg);
