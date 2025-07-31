@@ -994,6 +994,31 @@ class AIRinpocheChat {
 
     saveMessage(type, content) {
         try {
+            // 获取当前对话ID
+            const currentConversationId = sessionStorage.getItem('currentConversationId');
+            
+            if (currentConversationId) {
+                // 为特定对话保存消息
+                const messagesKey = `conversation_messages_${currentConversationId}`;
+                const savedMessages = localStorage.getItem(messagesKey);
+                const messages = savedMessages ? JSON.parse(savedMessages) : [];
+                
+                messages.push({
+                    type,
+                    content,
+                    time: new Date().toISOString()
+                });
+
+                // 限制每个对话最多保存200条消息
+                if (messages.length > 200) {
+                    messages.splice(0, messages.length - 200);
+                }
+                
+                localStorage.setItem(messagesKey, JSON.stringify(messages));
+                console.log(`💾 消息已保存到对话 ${currentConversationId}`);
+            }
+            
+            // 同时保存到通用历史记录（向后兼容）
             const savedMessages = sessionStorage.getItem('chatHistory');
             const messages = savedMessages ? JSON.parse(savedMessages) : [];
             
@@ -1264,19 +1289,72 @@ class AIRinpocheChat {
     }
 
     switchToConversation(conversationId) {
-        // 这里可以实现切换到特定对话的逻辑
-        // 由于目前使用sessionStorage存储，暂时只更新UI状态
+        console.log('切换到对话:', conversationId);
+        
+        // 设置当前对话ID
         sessionStorage.setItem('currentConversationId', conversationId);
+        
+        // 清空当前聊天界面
+        this.chatMessages.innerHTML = '';
+        
+        // 加载该对话的历史消息
+        this.loadConversationMessages(conversationId);
+        
+        // 更新对话列表UI状态
         this.updateConversationsList();
         
-        // 可以在这里添加加载特定对话历史的逻辑
-        console.log('切换到对话:', conversationId);
+        // 确保显示聊天界面
+        this.showChatInterface();
+        
+        // 滚动到底部
+        setTimeout(() => {
+            this.scrollToBottom();
+        }, 100);
+    }
+
+    loadConversationMessages(conversationId) {
+        try {
+            // 从localStorage加载该对话的消息历史
+            const messagesKey = `conversation_messages_${conversationId}`;
+            const savedMessages = localStorage.getItem(messagesKey);
+            
+            if (savedMessages) {
+                const messages = JSON.parse(savedMessages);
+                console.log(`加载对话 ${conversationId} 的 ${messages.length} 条消息`);
+                
+                // 重新渲染所有消息
+                messages.forEach(msg => {
+                    if (msg.type === 'user') {
+                        this.addMessage('user', msg.content);
+                    } else if (msg.type === 'ai') {
+                        this.addMessage('ai', msg.content);
+                    }
+                });
+                
+                // 显示消息已加载提示
+                if (messages.length > 0) {
+                    console.log(`✅ 成功加载 ${messages.length} 条历史消息`);
+                } else {
+                    console.log('⚠️ 该对话暂无消息历史');
+                }
+            } else {
+                console.log('⚠️ 未找到该对话的消息历史');
+            }
+        } catch (error) {
+            console.error('❌ 加载对话消息失败:', error);
+        }
     }
 
     deleteConversation(conversationId) {
         if (confirm('确定要删除这个对话吗？')) {
+            // 删除对话记录
             this.conversations = this.conversations.filter(c => c.id !== conversationId);
             this.saveConversations();
+            
+            // 删除对话的消息历史
+            const messagesKey = `conversation_messages_${conversationId}`;
+            localStorage.removeItem(messagesKey);
+            console.log(`🗑️ 已删除对话 ${conversationId} 的消息历史`);
             
             // 如果删除的是当前对话，开始新对话
             const currentConversationId = sessionStorage.getItem('currentConversationId');
