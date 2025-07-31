@@ -90,41 +90,51 @@
     opacity: 0.6;
 }
 
-/* 鸿蒙/Android系统：优化渲染，解决闪屏问题 */
+/* 鸿蒙/Android系统：精细优化 - 保持视觉效果，消除闪屏 */
 .device-harmonyos.render-optimized .cosmic-background,
 .device-android.render-optimized .cosmic-background {
-    opacity: 0.4;
-    transform: scale(0.9);
-    filter: blur(0.5px); /* 轻微模糊减少渲染负担 */
+    opacity: 0.85; /* 提高透明度，更接近iOS效果 */
+    transform: none; /* 保持原始尺寸 */
+    /* 关键：使用CSS优化属性提升渲染性能 */
+    will-change: opacity;
+    contain: layout style paint;
+    transform: translateZ(0); /* 强制GPU加速 */
 }
 
+/* 小星星：静态显示但保持视觉密度 */
 .device-harmonyos.render-optimized .stars.stars-small,
 .device-android.render-optimized .stars.stars-small {
-    animation: none !important; /* 完全禁用小星星动画 */
-    opacity: 0.3;
-    background-size: 150px 75px;
+    animation: none !important; /* 静态避免闪屏 */
+    opacity: 0.8; /* 提高亮度 */
+    background-size: 200px 100px; /* 保持原始密度 */
+    /* 用CSS伪动画替代JS动画 */
+    filter: brightness(1.1);
 }
 
+/* 中星星：保留最温和的动画 */
 .device-harmonyos.render-optimized .stars.stars-medium,
 .device-android.render-optimized .stars.stars-medium {
-    animation-duration: 24s !important; /* 放慢动画 */
-    animation-timing-function: linear;
-    opacity: 0.4;
-    background-size: 180px 90px;
+    animation: harmonyMediumStars 20s linear infinite !important;
+    opacity: 0.7; /* 保持较高亮度 */
+    background-size: 220px 120px; /* 保持原始密度 */
+    animation-play-state: running;
 }
 
+/* 大星星：静态但保持存在感 */
 .device-harmonyos.render-optimized .stars.stars-large,
 .device-android.render-optimized .stars.stars-large {
-    animation: none !important; /* 禁用大星星动画 */
-    opacity: 0.2;
-    background-size: 200px 100px;
+    animation: none !important; /* 静态避免卡顿 */
+    opacity: 0.6; /* 保持可见性 */
+    background-size: 300px 150px; /* 保持原始尺寸 */
+    filter: brightness(1.2) saturate(1.1);
 }
 
+/* 星云粒子：超级温和的动画 */
 .device-harmonyos.render-optimized .nebula-particles,
 .device-android.render-optimized .nebula-particles {
-    animation-duration: 40s !important; /* 极慢动画 */
-    opacity: 0.25;
-    filter: blur(1px);
+    animation: harmonyNebulaFlow 30s ease-in-out infinite !important;
+    opacity: 0.5; /* 保持较好的可见性 */
+    filter: none; /* 移除模糊，保持清晰度 */
 }
 
 /* 低性能设备：极简模式，确保流畅性 */
@@ -163,19 +173,49 @@
     -webkit-backface-visibility: hidden;
 }
 
-/* 鸿蒙系统特殊优化 */
-.device-harmonyos .title,
-.device-harmonyos .subtitle {
-    /* 减少文字特效，避免渲染冲突 */
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-    animation-duration: 12s !important; /* 放慢动画 */
+/* 鸿蒙系统专用动画 - 温和但有效果 */
+@keyframes harmonyMediumStars {
+    0%, 100% { 
+        opacity: 0.7;
+        transform: rotate(0deg);
+    }
+    50% { 
+        opacity: 0.5;
+        transform: rotate(45deg); /* 减少旋转角度 */
+    }
 }
 
+@keyframes harmonyNebulaFlow {
+    0%, 100% { 
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.3;
+        transform: scale(1.02); /* 极微的缩放 */
+    }
+}
+
+/* 鸿蒙系统文字效果优化 - 保持视觉冲击力 */
+.device-harmonyos .title,
+.device-harmonyos .subtitle {
+    /* 保持文字特效，但优化渲染 */
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5),
+                 0 0 40px rgba(139, 122, 216, 0.3);
+    animation-duration: 10s !important; /* 适中的动画速度 */
+    /* 添加渲染优化 */
+    will-change: filter;
+    transform: translateZ(0);
+}
+
+/* 鸿蒙系统背景动画优化 - 保持氛围但流畅 */
 .device-harmonyos body::before,
 .device-harmonyos body::after {
-    /* 简化背景动画 */
-    animation-duration: 40s !important;
-    opacity: 0.6 !important;
+    animation-duration: 35s !important; /* 适中速度 */
+    opacity: 0.8 !important; /* 保持较好的可见性 */
+    /* 添加性能优化 */
+    will-change: transform, opacity;
+    contain: layout style paint;
 }
 
 [data-theme="light"] {

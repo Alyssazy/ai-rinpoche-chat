@@ -54,7 +54,7 @@ class AIRinpocheChat {
             console.log('🍎 检测到iOS设备，启用完整UI效果');
         } else if (deviceInfo.isHarmonyOS) {
             body.classList.add('device-harmonyos', 'render-optimized');
-            console.log('🔥 检测到鸿蒙系统，启用优化渲染模式');
+            console.log('🔥 检测到鸿蒙系统，启用精细优化模式（保持视觉效果，消除闪屏）');
         } else if (deviceInfo.isAndroid) {
             body.classList.add('device-android', 'render-optimized');
             console.log('🤖 检测到Android系统，启用优化渲染模式');
@@ -80,7 +80,7 @@ class AIRinpocheChat {
         // 输出设备信息供调试
         console.log('📱 设备检测结果:', deviceInfo);
         
-        // 性能监控
+        // 性能监控（鸿蒙系统更敏感的监控）
         this.setupPerformanceMonitoring();
     }
     
@@ -100,8 +100,11 @@ class AIRinpocheChat {
                 frameCount = 0;
                 lastTime = currentTime;
                 
-                // 如果帧率过低，自动降级渲染
-                if (fps < 30 && !this.deviceInfo.isIOS) {
+                // 鸿蒙系统更严格的性能监控
+                if (this.deviceInfo.isHarmonyOS && fps < 40) {
+                    document.body.classList.add('low-performance');
+                    console.warn('🔥 鸿蒙系统检测到轻微卡顿，启用极简模式确保流畅');
+                } else if (!this.deviceInfo.isHarmonyOS && fps < 25 && !this.deviceInfo.isIOS) {
                     document.body.classList.add('low-performance');
                     console.warn('⚠️ 检测到性能问题，自动启用低功耗模式');
                 } else if (fps >= 50) {
