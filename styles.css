@@ -1,9 +1,16 @@
 /* 🧘 AI仁波切 - 禅意现代主义色彩系统 */
 :root {
-    /* 主背景：深邃宇宙色，象征无限智慧 */
-    --primary-bg: linear-gradient(135deg, #0a0f1c 0%, #1a1f2e 100%);
-    --secondary-bg: rgba(25, 35, 55, 0.8);
-    --tertiary-bg: rgba(45, 55, 75, 0.6);
+    /* 主背景：震撼深邃宇宙，多层次星空渐变 */
+    --primary-bg: 
+        /* 遥远星云 */
+        radial-gradient(ellipse 800px 600px at 20% 80%, rgba(26, 35, 126, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse 600px 800px at 80% 20%, rgba(74, 20, 140, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse 400px 400px at 60% 30%, rgba(13, 71, 161, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse 300px 500px at 30% 70%, rgba(49, 27, 146, 0.3) 0%, transparent 50%),
+        /* 主宇宙背景 */
+        linear-gradient(135deg, #000051 0%, #0c0c3d 25%, #1a1a2e 50%, #16213e 75%, #0a0a2e 100%);
+    --secondary-bg: rgba(25, 35, 85, 0.95);
+    --tertiary-bg: rgba(45, 55, 105, 0.8);
     
     /* 文字色彩：温暖而智慧的层次 */
     --text-primary: #f7f3e9; /* 温暖白色，如月光 */
@@ -38,9 +45,20 @@
     --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
     --shadow-glow: 0 0 40px rgba(212, 175, 55, 0.2);
     
-    /* 动态渐变背景 */
-    --bg-gradient: radial-gradient(ellipse at top, rgba(139, 122, 216, 0.1) 0%, transparent 50%),
-                   radial-gradient(ellipse at bottom, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+    /* 动态星云系统：震撼多层次宇宙氛围 */
+    --bg-gradient: 
+        /* 远古星云 - 智慧紫，更强烈 */
+        radial-gradient(ellipse 1500px 1000px at 50% 0%, rgba(139, 122, 216, 0.25) 0%, rgba(139, 122, 216, 0.12) 40%, transparent 80%),
+        /* 深邃左翼 - 宇宙蓝，增强对比 */
+        radial-gradient(ellipse 1000px 1200px at 0% 50%, rgba(13, 71, 161, 0.20) 0%, rgba(13, 71, 161, 0.08) 35%, transparent 70%),
+        /* 神秘右翼 - 深紫，强化层次 */
+        radial-gradient(ellipse 800px 1100px at 100% 30%, rgba(74, 20, 140, 0.18) 0%, rgba(74, 20, 140, 0.06) 40%, transparent 75%),
+        /* 黄金底部 - 温暖智慧光，更明显 */
+        radial-gradient(ellipse 1200px 500px at 50% 100%, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 45%, transparent 80%),
+        /* 中心灵光 - 慈悲橙，增强核心发光 */
+        radial-gradient(ellipse 600px 600px at 50% 50%, rgba(230, 126, 34, 0.12) 0%, rgba(230, 126, 34, 0.04) 30%, transparent 65%),
+        /* 新增：深邃边缘暗化效果 */
+        radial-gradient(ellipse 2000px 1500px at 50% 50%, transparent 0%, transparent 60%, rgba(0, 0, 51, 0.3) 100%);
 }
 
 [data-theme="light"] {
@@ -85,24 +103,253 @@ body {
     overflow-x: hidden;
 }
 
-/* 动态背景层 - 营造深邃的宇宙感 */
-body::before {
-    content: '';
+/* 🌌 震撼星空粒子系统 - 超级宇宙体验 */
+
+/* 第一层：宇宙星空粒子层 */
+.cosmic-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--bg-gradient);
     pointer-events: none;
-    z-index: -1;
-    opacity: 0.8;
-    animation: backgroundBreath 20s ease-in-out infinite;
+    z-index: -10;
+    overflow: hidden;
 }
 
-@keyframes backgroundBreath {
-    0%, 100% { opacity: 0.8; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.02); }
+/* 小星星 - 密集闪烁 */
+.stars.stars-small {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
+        radial-gradient(2px 2px at 40px 70px, rgba(212, 175, 55, 0.9) 0%, transparent 50%),
+        radial-gradient(1px 1px at 90px 40px, rgba(139, 122, 216, 0.8) 0%, transparent 50%),
+        radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
+        radial-gradient(2px 2px at 160px 30px, rgba(230, 126, 34, 0.7) 0%, transparent 50%);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+    animation: sparkle 8s linear infinite;
+    opacity: 0.9;
+}
+
+/* 中星星 - 优雅旋转 */
+.stars.stars-medium {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(3px 3px at 30px 20px, rgba(255, 255, 255, 0.9) 0%, transparent 60%),
+        radial-gradient(4px 4px at 80px 60px, rgba(212, 175, 55, 1) 0%, transparent 70%),
+        radial-gradient(3px 3px at 140px 40px, rgba(139, 122, 216, 0.9) 0%, transparent 60%),
+        radial-gradient(2px 2px at 180px 90px, rgba(255, 255, 255, 0.8) 0%, transparent 50%);
+    background-repeat: repeat;
+    background-size: 220px 120px;
+    animation: mediumStars 12s ease-in-out infinite;
+    opacity: 0.8;
+}
+
+/* 大星星 - 深度闪烁 */
+.stars.stars-large {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(5px 5px at 50px 50px, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.3) 40%, transparent 70%),
+        radial-gradient(6px 6px at 150px 30px, rgba(212, 175, 55, 1) 0%, rgba(212, 175, 55, 0.3) 40%, transparent 70%),
+        radial-gradient(4px 4px at 250px 80px, rgba(139, 122, 216, 1) 0%, rgba(139, 122, 216, 0.3) 40%, transparent 70%);
+    background-repeat: repeat;
+    background-size: 300px 150px;
+    animation: largeStars 15s ease-in-out infinite;
+    opacity: 0.7;
+}
+
+/* 星云粒子 - 梦幻流动 */
+.nebula-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse 300px 200px at 25% 25%, rgba(139, 122, 216, 0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 200px 300px at 75% 25%, rgba(230, 126, 34, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 250px 250px at 50% 75%, rgba(212, 175, 55, 0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 400px 150px at 80% 80%, rgba(26, 35, 126, 0.1) 0%, transparent 60%);
+    animation: nebulaFlow 20s ease-in-out infinite;
+    opacity: 0.6;
+}
+
+/* 第二层：基础宇宙呼吸 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 120%;
+    height: 120%;
+    left: -10%;
+    top: -10%;
+    background: var(--bg-gradient);
+    pointer-events: none;
+    z-index: -5;
+    opacity: 0.9;
+    animation: cosmicBreath 25s ease-in-out infinite;
+}
+
+/* 第三层：深层星云流动 */
+body::after {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    background: 
+        radial-gradient(ellipse 1000px 600px at 70% 30%, rgba(139, 122, 216, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 800px 1200px at 20% 70%, rgba(26, 35, 126, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 600px 600px at 80% 80%, rgba(74, 20, 140, 0.04) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: -2;
+    opacity: 0.7;
+    animation: deepSpaceFlow 35s linear infinite;
+}
+
+/* 🌟 星空粒子动画系统 */
+
+/* 小星星闪烁动画 */
+@keyframes sparkle {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+        opacity: 0.9;
+        filter: brightness(1) hue-rotate(0deg);
+    }
+    25% { 
+        transform: scale(1.1) rotate(90deg);
+        opacity: 1;
+        filter: brightness(1.2) hue-rotate(10deg);
+    }
+    50% { 
+        transform: scale(0.8) rotate(180deg);
+        opacity: 0.7;
+        filter: brightness(0.8) hue-rotate(20deg);
+    }
+    75% { 
+        transform: scale(1.05) rotate(270deg);
+        opacity: 0.95;
+        filter: brightness(1.1) hue-rotate(15deg);
+    }
+}
+
+/* 中等星星旋转动画 */
+@keyframes mediumStars {
+    0%, 100% { 
+        transform: translateX(0) translateY(0) rotate(0deg);
+        opacity: 0.8;
+        filter: blur(0px) brightness(1);
+    }
+    33% { 
+        transform: translateX(10px) translateY(-5px) rotate(120deg);
+        opacity: 1;
+        filter: blur(0.5px) brightness(1.3);
+    }
+    66% { 
+        transform: translateX(-5px) translateY(8px) rotate(240deg);
+        opacity: 0.6;
+        filter: blur(1px) brightness(0.9);
+    }
+}
+
+/* 大星星深度闪烁 */
+@keyframes largeStars {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+        opacity: 0.7;
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)) brightness(1);
+    }
+    20% { 
+        transform: scale(1.2) rotate(72deg);
+        opacity: 1;
+        filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)) brightness(1.4);
+    }
+    40% { 
+        transform: scale(0.9) rotate(144deg);
+        opacity: 0.5;
+        filter: drop-shadow(0 0 3px rgba(139, 122, 216, 0.3)) brightness(0.8);
+    }
+    60% { 
+        transform: scale(1.1) rotate(216deg);
+        opacity: 0.9;
+        filter: drop-shadow(0 0 10px rgba(230, 126, 34, 0.4)) brightness(1.2);
+    }
+    80% { 
+        transform: scale(1.05) rotate(288deg);
+        opacity: 0.8;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4)) brightness(1.1);
+    }
+}
+
+/* 星云粒子流动 */
+@keyframes nebulaFlow {
+    0%, 100% { 
+        transform: rotate(0deg) scale(1);
+        opacity: 0.6;
+        filter: blur(2px) hue-rotate(0deg);
+    }
+    25% { 
+        transform: rotate(90deg) scale(1.1);
+        opacity: 0.8;
+        filter: blur(1px) hue-rotate(90deg);
+    }
+    50% { 
+        transform: rotate(180deg) scale(0.9);
+        opacity: 0.4;
+        filter: blur(3px) hue-rotate(180deg);
+    }
+    75% { 
+        transform: rotate(270deg) scale(1.05);
+        opacity: 0.7;
+        filter: blur(1.5px) hue-rotate(270deg);
+    }
+}
+
+/* 宇宙呼吸动画 - 更震撼的效果 */
+@keyframes cosmicBreath {
+    0%, 100% { 
+        opacity: 0.9; 
+        transform: scale(1) rotate(0deg); 
+        filter: hue-rotate(0deg);
+    }
+    25% { 
+        opacity: 1; 
+        transform: scale(1.03) rotate(0.5deg); 
+        filter: hue-rotate(5deg);
+    }
+    50% { 
+        opacity: 0.95; 
+        transform: scale(1.05) rotate(1deg); 
+        filter: hue-rotate(10deg);
+    }
+    75% { 
+        opacity: 1; 
+        transform: scale(1.03) rotate(0.5deg); 
+        filter: hue-rotate(5deg);
+    }
+}
+
+/* 深空流动动画 */
+@keyframes deepSpaceFlow {
+    0% { 
+        transform: rotate(0deg) scale(1); 
+        opacity: 0.7; 
+    }
+    50% { 
+        transform: rotate(180deg) scale(1.1); 
+        opacity: 0.8; 
+    }
+    100% { 
+        transform: rotate(360deg) scale(1); 
+        opacity: 0.7; 
+    }
 }
 
 /* 自定义滚动条 */
@@ -135,6 +382,10 @@ body::before {
     border-radius: 0;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    
+    /* 新增：容器内部光晕效果 */
+    box-shadow: inset 0 0 100px rgba(212, 175, 55, 0.08),
+                inset 0 0 200px rgba(139, 122, 216, 0.05);
 }
 
 /* 🎋 禅意侧边栏 - iOS磨砂玻璃效果 */
@@ -152,9 +403,11 @@ body::before {
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
     
-    /* 微妙的内阴影，增加深度 */
+    /* 增强阴影和光晕效果 */
     box-shadow: inset 1px 0 0 var(--border-subtle),
-                var(--shadow-soft);
+                var(--shadow-soft),
+                inset 0 0 50px rgba(212, 175, 55, 0.05),
+                0 0 30px rgba(139, 122, 216, 0.15);
     
     /* 柔和的左侧光晕 */
     position: relative;
@@ -472,9 +725,10 @@ body::before {
     background-clip: text;
     animation: titleShimmer 8s ease-in-out infinite;
     
-    /* 增加文字的深度感和光芒 */
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.4),
-                 0 0 40px rgba(139, 122, 216, 0.2);
+    /* 增强文字的深度感和光芒 */
+    text-shadow: 0 0 30px rgba(212, 175, 55, 0.6),
+                 0 0 60px rgba(139, 122, 216, 0.4),
+                 0 0 90px rgba(230, 126, 34, 0.3);
     
     /* 字符间距优化，增加庄重感 */
     letter-spacing: 0.05em;
@@ -482,6 +736,9 @@ body::before {
     /* 为了备用显示设置fallback色彩 */
     color: var(--accent-color);
     position: relative;
+    
+    /* 新增：立体效果 */
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 /* 标题呼吸光效 */
@@ -508,11 +765,16 @@ body::before {
     letter-spacing: 0.1em;
     margin-top: 0.25rem;
     
-    /* 柔和的光晕效果 */
-    text-shadow: 0 0 10px rgba(212, 197, 169, 0.3);
+    /* 增强光晕效果 */
+    text-shadow: 0 0 15px rgba(212, 197, 169, 0.5),
+                 0 0 25px rgba(139, 122, 216, 0.3),
+                 0 0 35px rgba(212, 175, 55, 0.2);
     
     /* 微妙的动画 */
     animation: subtitleBreath 4s ease-in-out infinite;
+    
+    /* 新增：立体效果 */
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 @keyframes subtitleBreath {
@@ -918,6 +1180,30 @@ body::before {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+    /* 移动端星空粒子优化 */
+    .cosmic-background {
+        opacity: 0.6; /* 降低移动端星空强度 */
+    }
+    
+    .stars.stars-small {
+        background-size: 150px 75px; /* 减小星星密度 */
+        animation-duration: 10s; /* 加快动画 */
+    }
+    
+    .stars.stars-medium {
+        background-size: 180px 90px;
+        animation-duration: 14s;
+    }
+    
+    .stars.stars-large {
+        background-size: 250px 125px;
+        animation-duration: 18s;
+    }
+    
+    .nebula-particles {
+        opacity: 0.4; /* 减少星云效果 */
+    }
+    
     .app-container {
         position: relative;
     }
