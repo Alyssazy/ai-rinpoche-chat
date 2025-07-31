@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git --version)"
+      "Bash(git --version)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "WebFetch(domain:dreamy-gelato-125b82.netlify.app)"
     ],
     "deny": []
   }
