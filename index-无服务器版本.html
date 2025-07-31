@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI仁波切 - 智慧对话助手</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">AI仁波切</h1>
+                <p class="subtitle">智慧对话助手 - 为您提供深度思考与指导</p>
+                <button class="theme-toggle" id="themeToggle">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="chat-container">
+                <div class="welcome-message" id="welcomeMessage">
+                    <div class="welcome-content">
+                        <h2>欢迎与AI仁波切对话</h2>
+                        <p>由于浏览器安全限制，当前运行在<strong>演示模式</strong>下。<br>
+                        要获得真实的AI回复，请使用以下任一方案：</p>
+                        
+                        <div class="setup-instructions">
+                            <div class="instruction-card">
+                                <h3>🚀 方案1: 启动本地服务器</h3>
+                                <p>双击运行 <code>启动服务器-新版.bat</code></p>
+                                <p>然后访问 <code>http://localhost:8000</code></p>
+                            </div>
+                            
+                            <div class="instruction-card">
+                                <h3>🌐 方案2: Chrome无安全模式</h3>
+                                <ol>
+                                    <li>关闭所有Chrome窗口</li>
+                                    <li>按Win+R，输入以下命令：</li>
+                                    <li><code>chrome --user-data-dir="C:\temp" --disable-web-security</code></li>
+                                    <li>在新打开的Chrome中访问此页面</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="quick-questions">
+                            <button class="quick-btn" data-question="什么是真正的智慧？">什么是真正的智慧？</button>
+                            <button class="quick-btn" data-question="如何面对生活中的困难？">如何面对生活中的困难？</button>
+                            <button class="quick-btn" data-question="什么是内心的平静？">什么是内心的平静？</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages"></div>
+                
+                <div class="chat-loading" id="chatLoading" style="display: none;">
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="loading-text">AI仁波切正在思考中...</span>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="status-dot demo"></span>
+                    <span class="status-text">演示模式 - 模拟回复</span>
+                </div>
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="请输入您的问题..."
+                        rows="1"
+                    ></textarea>
+                    <button id="sendButton" class="send-button">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-footer">
+                    <span class="input-hint">按 Enter 发送，Shift + Enter 换行</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    class AIRinpocheChat {
+        constructor() {
+            this.apiKey = 'app-vanuZhHLhFmXqz5kG8guNOb7';
+            this.apiBase = 'https://api.dify.ai';
+            this.conversationId = null;
+            this.isLoading = false;
+            this.isDemo = true; // 强制演示模式
+
+            this.initializeElements();
+            this.bindEvents();
+            this.initializeTheme();
+            this.loadConversationHistory();
+            this.updateStatusIndicator();
+        }
+
+        initializeElements() {
+            this.chatInput = document.getElementById('chatInput');
+            this.sendButton = document.getElementById('sendButton');
+            this.chatMessages = document.getElementById('chatMessages');
+            this.welcomeMessage = document.getElementById('welcomeMessage');
+            this.chatLoading = document.getElementById('chatLoading');
+            this.themeToggle = document.getElementById('themeToggle');
+            this.quickButtons = document.querySelectorAll('.quick-btn');
+            this.statusIndicator = document.getElementById('statusIndicator');
+        }
+
+        updateStatusIndicator() {
+            const statusDot = this.statusIndicator.querySelector('.status-dot');
+            const statusText = this.statusIndicator.querySelector('.status-text');
+            
+            if (this.isDemo) {
+                statusDot.className = 'status-dot demo';
+                statusText.textContent = '演示模式 - 模拟回复';
+            } else {
+                statusDot.className = 'status-dot connected';
+                statusText.textContent = '已连接 - AI仁波切在线';
+            }
+        }
+
+        bindEvents() {
+            this.sendButton.addEventListener('click', () => this.sendMessage());
+            
+            this.chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            });
+
+            this.chatInput.addEventListener('input', () => {
+                this.adjustTextareaHeight();
+                this.updateSendButtonState();
+            });
+
+            this.themeToggle.addEventListener('click', () => this.toggleTheme());
+
+            this.quickButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const question = btn.getAttribute('data-question');
+                    this.chatInput.value = question;
+                    this.sendMessage();
+                });
+            });
+        }
+
+        initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            this.setTheme(savedTheme);
+        }
+
+        toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            this.setTheme(newTheme);
+        }
+
+        setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            const themeIcon = this.themeToggle.querySelector('.theme-icon');
+            themeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
+        }
+
+        adjustTextareaHeight() {
+            this.chatInput.style.height = 'auto';
+            this.chatInput.style.height = Math.min(this.chatInput.scrollHeight, 120) + 'px';
+        }
+
+        updateSendButtonState() {
+            const hasText = this.chatInput.value.trim().length > 0;
+            this.sendButton.disabled = !hasText || this.isLoading;
+        }
+
+        async sendMessage() {
+            const message = this.chatInput.value.trim();
+            if (!message || this.isLoading) return;
+
+            this.showChatInterface();
+            this.addMessage('user', message);
+            this.chatInput.value = '';
+            this.adjustTextareaHeight();
+            this.setLoading(true);
+
+            try {
+                const response = await this.getDemoResponse(message);
+                this.addMessage('ai', response);
+            } catch (error) {
+                console.error('API调用失败:', error);
+                this.addMessage('ai', '演示模式出现错误。请检查控制台了解详情。');
+            } finally {
+                this.setLoading(false);
+            }
+        }
+
+        getDemoResponse(message) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const responses = [
+                        `关于"${message.substring(0, 20)}${message.length > 20 ? '...' : ''}"的问题，这里是一个演示回复。要获得真正的AI仁波切智慧回复，请按照页面顶部的说明配置服务器环境。`,
+                        `您提到了"${message.substring(0, 15)}${message.length > 15 ? '...' : ''}"，这是一个很好的问题。在演示模式下，我只能提供预设回复。要体验完整功能，请启动本地服务器。`,
+                        `感谢您的提问："${message.substring(0, 25)}${message.length > 25 ? '...' : ''}"。这是演示模式的回复。要与真正的AI仁波切对话，请按照页面指南设置环境。`,
+                        `您的问题很有深度。在演示模式下，我无法提供真正的AI智慧指导。请参考页面上的设置说明，启用完整功能后再次提问。`
+                    ];
+                    
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    resolve(randomResponse);
+                }, 1500 + Math.random() * 2000);
+            });
+        }
+
+        showChatInterface() {
+            this.welcomeMessage.style.display = 'none';
+            this.chatMessages.classList.add('active');
+            this.chatMessages.style.display = 'block';
+        }
+
+        addMessage(type, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = type === 'user' ? '👤' : '🧘';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            const messageText = document.createElement('div');
+            messageText.className = 'message-text';
+            messageText.textContent = content;
+            
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            messageTime.textContent = this.formatTime(new Date());
+            
+            messageContent.appendChild(messageText);
+            messageContent.appendChild(messageTime);
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            this.chatMessages.appendChild(messageDiv);
+            
+            requestAnimationFrame(() => {
+                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            });
+
+            this.saveMessage(type, content);
+        }
+
+        setLoading(loading) {
+            this.isLoading = loading;
+            this.chatLoading.style.display = loading ? 'flex' : 'none';
+            this.updateSendButtonState();
+            
+            if (loading) {
+                this.chatLoading.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+        }
+
+        formatTime(date) {
+            return date.toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+
+        saveMessage(type, content) {
+            try {
+                const savedMessages = sessionStorage.getItem('chatHistory');
+                const messages = savedMessages ? JSON.parse(savedMessages) : [];
+                
+                messages.push({
+                    type,
+                    content,
+                    time: new Date().toISOString()
+                });
+
+                if (messages.length > 100) {
+                    messages.splice(0, messages.length - 100);
+                }
+                
+                sessionStorage.setItem('chatHistory', JSON.stringify(messages));
+            } catch (error) {
+                console.error('保存消息失败:', error);
+            }
+        }
+
+        loadConversationHistory() {
+            const savedMessages = sessionStorage.getItem('chatHistory');
+            if (savedMessages) {
+                try {
+                    const messages = JSON.parse(savedMessages);
+                    if (messages.length > 0) {
+                        this.showChatInterface();
+                        messages.forEach(msg => {
+                            this.addMessageToUI(msg.type, msg.content, msg.time);
+                        });
+                    }
+                } catch (error) {
+                    console.error('加载聊天历史失败:', error);
+                }
+            }
+        }
+
+        addMessageToUI(type, content, timeStr) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = type === 'user' ? '👤' : '🧘';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            const messageText = document.createElement('div');
+            messageText.className = 'message-text';
+            messageText.textContent = content;
+            
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            messageTime.textContent = this.formatTime(new Date(timeStr));
+            
+            messageContent.appendChild(messageText);
+            messageContent.appendChild(messageTime);
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            this.chatMessages.appendChild(messageDiv);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new AIRinpocheChat();
+    });
+    </script>
+
+    <style>
+    .setup-instructions {
+        max-width: 600px;
+        margin: 2rem 0;
+    }
+
+    .instruction-card {
+        background: var(--secondary-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .instruction-card h3 {
+        color: var(--accent-color);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .instruction-card code {
+        background: var(--tertiary-bg);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+    }
+
+    .instruction-card ol {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .instruction-card li {
+        margin: 0.3rem 0;
+    }
+
+    .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .status-dot.demo {
+        background: #f59e0b;
+        animation: pulse 2s infinite;
+    }
+
+    .status-dot.connected {
+        background: #10b981;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    </style>
+</body>
+</html>
