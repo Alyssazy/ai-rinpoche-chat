@@ -677,6 +677,20 @@ body {
     color: var(--text-muted);
 }
 
+/* 侧边栏遮罩层 */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .app-container {
@@ -691,6 +705,7 @@ body {
         z-index: 1001;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
+        width: 280px; /* 固定宽度避免内容被挤压 */
     }
     
     .sidebar:not(.collapsed) {
@@ -698,9 +713,11 @@ body {
         box-shadow: var(--shadow-lg);
     }
     
+    /* 确保主内容区域不受侧边栏影响 */
     .main-content {
-        max-width: none;
+        width: 100%;
         margin: 0;
+        max-width: none;
     }
     
     .header {

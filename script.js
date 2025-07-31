@@ -46,6 +46,9 @@ class AIRinpocheChat {
     bindEvents() {
         this.sendButton.addEventListener('click', () => this.sendMessage());
         
+        // 移动端侧边栏控制
+        this.setupMobileSidebar();
+        
         this.chatInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -1131,13 +1134,94 @@ class AIRinpocheChat {
     }
 
     // 侧边栏功能
+    setupMobileSidebar() {
+        // 创建遮罩层
+        this.createSidebarOverlay();
+        
+        // 检测屏幕尺寸变化
+        this.checkScreenSize();
+        window.addEventListener('resize', () => this.checkScreenSize());
+        
+        // 点击遮罩层关闭侧边栏
+        this.overlay.addEventListener('click', () => this.closeSidebar());
+        
+        // 侧边栏内点击历史对话时在移动端自动关闭
+        this.conversationsList.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && e.target.closest('.conversation-item')) {
+                setTimeout(() => this.closeSidebar(), 300); // 延迟关闭让用户看到切换效果
+            }
+        });
+    }
+
+    createSidebarOverlay() {
+        // 创建遮罩层
+        this.overlay = document.createElement('div');
+        this.overlay.className = 'sidebar-overlay';
+        this.overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        `;
+        document.body.appendChild(this.overlay);
+    }
+
+    checkScreenSize() {
+        if (window.innerWidth <= 768) {
+            // 移动端：默认收起侧边栏
+            this.sidebar.classList.add('collapsed');
+        } else {
+            // 桌面端：默认展开侧边栏
+            this.sidebar.classList.remove('collapsed');
+            this.overlay.style.opacity = '0';
+            this.overlay.style.visibility = 'hidden';
+        }
+    }
+
     toggleSidebar() {
-        this.sidebar.classList.toggle('collapsed');
+        const isCollapsed = this.sidebar.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+            this.openSidebar();
+        } else {
+            this.closeSidebar();
+        }
+    }
+
+    openSidebar() {
+        this.sidebar.classList.remove('collapsed');
+        
+        // 移动端显示遮罩层
+        if (window.innerWidth <= 768) {
+            this.overlay.style.opacity = '1';
+            this.overlay.style.visibility = 'visible';
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        }
+    }
+
+    closeSidebar() {
+        this.sidebar.classList.add('collapsed');
+        
+        // 隐藏遮罩层
+        this.overlay.style.opacity = '0';
+        this.overlay.style.visibility = 'hidden';
+        document.body.style.overflow = ''; // 恢复滚动
     }
 
     startNewChat() {
         this.clearHistory();
         this.conversationId = null;
+        
+        // 移动端自动关闭侧边栏
+        if (window.innerWidth <= 768) {
+            this.closeSidebar();
+        }
         this.lastUserMessage = null;
         sessionStorage.removeItem('currentConversationId');
         
