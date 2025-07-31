@@ -16,6 +16,8 @@ class AIRinpocheChat {
         this.streamingSupported = null;
         this.fallbackMode = false;
 
+        // 📱 智能设备适配系统
+        this.initializeDeviceDetection();
         this.initializeElements();
         this.setupMobileSidebar();
         this.bindEvents();
@@ -25,6 +27,95 @@ class AIRinpocheChat {
         this.loadConversationHistory();
         this.conversations = this.loadConversations();
         this.updateConversationsList();
+    }
+
+    // 📱 智能设备检测和适配系统
+    initializeDeviceDetection() {
+        const userAgent = navigator.userAgent;
+        const body = document.body;
+        
+        // 详细的设备和系统检测
+        const deviceInfo = {
+            isIOS: /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream,
+            isAndroid: /Android/.test(userAgent),
+            isHarmonyOS: /HarmonyOS/.test(userAgent) || /HUAWEI/.test(userAgent),
+            isSafari: /Safari/.test(userAgent) && !/Chrome/.test(userAgent),
+            isChrome: /Chrome/.test(userAgent),
+            isWebKit: /WebKit/.test(userAgent),
+            isMobile: /Mobi|Android/i.test(userAgent)
+        };
+        
+        // 存储设备信息供其他方法使用
+        this.deviceInfo = deviceInfo;
+        
+        // 根据设备类型添加CSS类名，实现差异化渲染
+        if (deviceInfo.isIOS) {
+            body.classList.add('device-ios', 'render-full');
+            console.log('🍎 检测到iOS设备，启用完整UI效果');
+        } else if (deviceInfo.isHarmonyOS) {
+            body.classList.add('device-harmonyos', 'render-optimized');
+            console.log('🔥 检测到鸿蒙系统，启用优化渲染模式');
+        } else if (deviceInfo.isAndroid) {
+            body.classList.add('device-android', 'render-optimized');
+            console.log('🤖 检测到Android系统，启用优化渲染模式');
+        } else {
+            body.classList.add('device-other', 'render-standard');
+            console.log('💻 检测到其他设备，启用标准渲染模式');
+        }
+        
+        // 渲染引擎检测
+        if (deviceInfo.isSafari) {
+            body.classList.add('engine-safari');
+        } else if (deviceInfo.isChrome) {
+            body.classList.add('engine-chrome');
+        } else {
+            body.classList.add('engine-other');
+        }
+        
+        // 移动端检测
+        if (deviceInfo.isMobile) {
+            body.classList.add('is-mobile');
+        }
+        
+        // 输出设备信息供调试
+        console.log('📱 设备检测结果:', deviceInfo);
+        
+        // 性能监控
+        this.setupPerformanceMonitoring();
+    }
+    
+    // 性能监控系统
+    setupPerformanceMonitoring() {
+        // 监控帧率，检测是否出现卡顿
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 60;
+        
+        const measureFPS = () => {
+            frameCount++;
+            const currentTime = performance.now();
+            
+            if (currentTime >= lastTime + 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                frameCount = 0;
+                lastTime = currentTime;
+                
+                // 如果帧率过低，自动降级渲染
+                if (fps < 30 && !this.deviceInfo.isIOS) {
+                    document.body.classList.add('low-performance');
+                    console.warn('⚠️ 检测到性能问题，自动启用低功耗模式');
+                } else if (fps >= 50) {
+                    document.body.classList.remove('low-performance');
+                }
+            }
+            
+            requestAnimationFrame(measureFPS);
+        };
+        
+        // 延迟启动性能监控，避免初始化时的性能波动
+        setTimeout(() => {
+            requestAnimationFrame(measureFPS);
+        }, 2000);
     }
 
     initializeElements() {
@@ -232,6 +323,13 @@ class AIRinpocheChat {
                 this.conversationId = null;
                 sessionStorage.removeItem('conversationId');
                 debugInfo = `\n\n🔧 检测到会话ID可能无效，已重置。请重新发送消息开始新对话。`;
+            } else if (error.message.includes('404')) {
+                errorMessage = '会话已过期或失效，已自动开始新对话。'; 
+                // 🔧 404错误表示会话不存在，自动重置
+                this.conversationId = null;
+                sessionStorage.removeItem('conversationId');
+                debugInfo = `\n\n🔄 会话ID不存在或已过期，已自动重置。您可以继续发送消息，系统将开始新的对话。`;
+                console.log('🔄 404错误：会话不存在，已重置conversation_id');
             } else if (error.message.includes('Failed to fetch')) {
                 errorMessage = '网络连接失败，请检查网络连接或CORS设置。';
             } else if (error.message.includes('请求超时')) {
@@ -310,9 +408,9 @@ class AIRinpocheChat {
                     requestBody: requestBody
                 });
                 
-                // 🔧 特殊处理400错误，通常意味着conversation_id无效
-                if (response.status === 400 && this.conversationId) {
-                    console.warn('⚠️ 400错误可能是由于无效的conversation_id，将在下次请求时重置');
+                // 🔧 特殊处理400和404错误，通常意味着conversation_id无效或过期
+                if ((response.status === 400 || response.status === 404) && this.conversationId) {
+                    console.warn(`⚠️ ${response.status}错误可能是由于无效或过期的conversation_id，将在下次请求时重置`);
                 }
                 
                 throw new Error(`API请求失败: ${response.status} - ${response.statusText}`);
@@ -408,9 +506,9 @@ class AIRinpocheChat {
                     requestBody: requestBody
                 });
                 
-                // 🔧 特殊处理400错误，通常意味着conversation_id无效
-                if (response.status === 400 && this.conversationId) {
-                    console.warn('⚠️ 400错误可能是由于无效的conversation_id，将在下次请求时重置');
+                // 🔧 特殊处理400和404错误，通常意味着conversation_id无效或过期
+                if ((response.status === 400 || response.status === 404) && this.conversationId) {
+                    console.warn(`⚠️ ${response.status}错误可能是由于无效或过期的conversation_id，将在下次请求时重置`);
                 }
                 
                 throw new Error(`API请求失败: ${response.status} - ${response.statusText}`);
