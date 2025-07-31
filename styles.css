@@ -1,19 +1,46 @@
-/* 全局变量 */
+/* 🧘 AI仁波切 - 禅意现代主义色彩系统 */
 :root {
-    --primary-bg: #0f172a;
-    --secondary-bg: #1e293b;
-    --tertiary-bg: #334155;
-    --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
-    --accent-color: #3b82f6;
-    --accent-hover: #2563eb;
-    --border-color: #475569;
-    --message-user-bg: #3b82f6;
-    --message-ai-bg: #374151;
-    --input-bg: #1e293b;
-    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    /* 主背景：深邃宇宙色，象征无限智慧 */
+    --primary-bg: linear-gradient(135deg, #0a0f1c 0%, #1a1f2e 100%);
+    --secondary-bg: rgba(25, 35, 55, 0.8);
+    --tertiary-bg: rgba(45, 55, 75, 0.6);
+    
+    /* 文字色彩：温暖而智慧的层次 */
+    --text-primary: #f7f3e9; /* 温暖白色，如月光 */
+    --text-secondary: #d4c5a9; /* 古典金色，智慧之光 */
+    --text-muted: #a18b73; /* 沉静棕金，内敛深沉 */
+    
+    /* 主色调：宁静金色 - 象征智慧与慈悲 */
+    --accent-color: #d4af37; /* 沉静的金色 */
+    --accent-hover: #f4d03f; /* 温暖的金色光晕 */
+    --accent-soft: rgba(212, 175, 55, 0.15); /* 柔和金色背景 */
+    
+    /* 智慧紫色 - 精神层面的色彩 */
+    --wisdom-color: #8b7ad8; /* 深邃紫色 */
+    --wisdom-soft: rgba(139, 122, 216, 0.1);
+    
+    /* 慈悲橙色 - 温暖关怀的色彩 */
+    --compassion-color: #e67e22; /* 温暖橙色 */
+    --compassion-soft: rgba(230, 126, 34, 0.1);
+    
+    /* 边框和分割线：柔和而优雅 */
+    --border-color: rgba(212, 175, 55, 0.2);
+    --border-subtle: rgba(247, 243, 233, 0.1);
+    
+    /* 消息背景：有温度的对话 */
+    --message-user-bg: linear-gradient(135deg, #d4af37 0%, #f39c12 100%);
+    --message-ai-bg: rgba(139, 122, 216, 0.15);
+    --input-bg: rgba(25, 35, 55, 0.9);
+    
+    /* iOS式阴影系统：柔和而有深度 */
+    --shadow-soft: 0 2px 20px rgba(212, 175, 55, 0.1);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 40px rgba(212, 175, 55, 0.2);
+    
+    /* 动态渐变背景 */
+    --bg-gradient: radial-gradient(ellipse at top, rgba(139, 122, 216, 0.1) 0%, transparent 50%),
+                   radial-gradient(ellipse at bottom, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
 }
 
 [data-theme="light"] {
@@ -45,12 +72,37 @@ html {
 }
 
 body {
-    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: var(--primary-bg);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Noto Sans SC', system-ui, sans-serif;
+    background: var(--primary-bg);
+    background-attachment: fixed;
     color: var(--text-primary);
-    line-height: 1.6;
-    transition: all 0.3s ease;
+    line-height: 1.7; /* 更舒适的行高 */
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
+    
+    /* iOS式的微妙纹理 */
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 动态背景层 - 营造深邃的宇宙感 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-gradient);
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.8;
+    animation: backgroundBreath 20s ease-in-out infinite;
+}
+
+@keyframes backgroundBreath {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.02); }
 }
 
 /* 自定义滚动条 */
@@ -72,22 +124,58 @@ body {
 }
 
 /* 应用容器布局 */
+/* 🌟 主应用容器 - iOS风格的深度层次 */
 .app-container {
     min-height: 100vh;
     display: flex;
-    background: var(--primary-bg);
+    background: transparent; /* 让body的渐变背景透过 */
+    position: relative;
+    
+    /* iOS式的容器阴影和边缘处理 */
+    border-radius: 0;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
-/* 侧边栏样式 */
+/* 🎋 禅意侧边栏 - iOS磨砂玻璃效果 */
 .sidebar {
-    width: 280px;
+    width: 320px; /* 稍微宽一点，更舒适 */
     background: var(--secondary-bg);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
     position: relative;
+    
+    /* iOS式磨砂效果 */
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    
+    /* 微妙的内阴影，增加深度 */
+    box-shadow: inset 1px 0 0 var(--border-subtle),
+                var(--shadow-soft);
+    
+    /* 柔和的左侧光晕 */
+    position: relative;
+}
+
+/* 侧边栏内侧光效 */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, 
+        transparent 0%, 
+        var(--accent-color) 20%, 
+        var(--wisdom-color) 50%, 
+        var(--accent-color) 80%, 
+        transparent 100%);
+    opacity: 0.3;
+    pointer-events: none;
 }
 
 .sidebar.collapsed {
@@ -99,26 +187,68 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
+/* 🌟 智慧之门 - 新建对话按钮 */
 .new-chat-btn {
     width: 100%;
-    background: var(--accent-color);
-    border: none;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    color: white;
-    font-size: 0.9rem;
-    font-weight: 500;
+    background: var(--message-user-bg);
+    border: 1px solid var(--accent-color);
+    border-radius: 16px; /* iOS式的圆润边角 */
+    padding: 1rem 1.25rem;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s ease;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    
+    /* iOS式的阴影层次 */
+    box-shadow: var(--shadow-soft),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    /* 智慧光芒效果 */
+    background-size: 200% 200%;
+    animation: gentleGlow 4s ease-in-out infinite;
+}
+
+/* 按钮内的光效层 */
+.new-chat-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        transparent 100%);
+    transition: left 0.5s ease;
+}
+
+.new-chat-btn:hover::before {
+    left: 100%;
+}
+
+@keyframes gentleGlow {
+    0%, 100% { box-shadow: var(--shadow-soft), 0 0 20px rgba(212, 175, 55, 0.3); }
+    50% { box-shadow: var(--shadow-soft), 0 0 30px rgba(212, 175, 55, 0.5); }
 }
 
 .new-chat-btn:hover {
-    background: var(--accent-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--shadow-glow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-hover);
+}
+
+.new-chat-btn:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
 }
 
 .new-chat-btn svg {
@@ -324,22 +454,70 @@ body {
     text-align: center;
 }
 
+/* 🕉️ 智慧之名 - AI仁波切标题 */
 .title {
-    font-family: 'Noto Serif SC', serif;
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Noto Serif SC', serif;
+    font-size: 2rem;
+    font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 0.25rem;
-    background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, 
+        var(--accent-color) 0%, 
+        var(--wisdom-color) 30%,
+        var(--accent-color) 60%,
+        var(--compassion-color) 100%);
+    background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    animation: titleShimmer 8s ease-in-out infinite;
+    
+    /* 增加文字的深度感和光芒 */
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.4),
+                 0 0 40px rgba(139, 122, 216, 0.2);
+    
+    /* 字符间距优化，增加庄重感 */
+    letter-spacing: 0.05em;
+    
+    /* 为了备用显示设置fallback色彩 */
+    color: var(--accent-color);
+    position: relative;
 }
 
+/* 标题呼吸光效 */
+@keyframes titleShimmer {
+    0%, 100% { 
+        background-position: 0% 50%; 
+        filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+    }
+    33% { 
+        background-position: 50% 0%; 
+        filter: drop-shadow(0 0 15px rgba(139, 122, 216, 0.4));
+    }
+    66% { 
+        background-position: 100% 50%; 
+        filter: drop-shadow(0 0 12px rgba(230, 126, 34, 0.3));
+    }
+}
+
+/* 🌸 智慧引语 - 副标题 */
 .subtitle {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     color: var(--text-secondary);
     font-weight: 400;
+    letter-spacing: 0.1em;
+    margin-top: 0.25rem;
+    
+    /* 柔和的光晕效果 */
+    text-shadow: 0 0 10px rgba(212, 197, 169, 0.3);
+    
+    /* 微妙的动画 */
+    animation: subtitleBreath 4s ease-in-out infinite;
+}
+
+@keyframes subtitleBreath {
+    0%, 100% { opacity: 0.9; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-1px); }
 }
 
 .theme-toggle {
@@ -390,31 +568,78 @@ body {
 }
 
 /* 欢迎消息 */
+/* 🌅 初见智慧 - 欢迎界面 */
 .welcome-message {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 3rem 2rem;
+    position: relative;
+    
+    /* 柔和的中心光晕 */
+    background: radial-gradient(ellipse at center, 
+        var(--wisdom-soft) 0%, 
+        transparent 70%);
 }
 
+/* 欢迎内容容器 */
 .welcome-content {
     text-align: center;
-    max-width: 600px;
+    max-width: 700px;
+    position: relative;
+    
+    /* iOS式的卡片效果 */
+    background: var(--secondary-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    box-shadow: var(--shadow-soft),
+                inset 0 1px 0 var(--border-subtle);
+    border: 1px solid var(--border-color);
+    
+    /* 微妙的呼吸动画 */
+    animation: welcomeBreath 6s ease-in-out infinite;
 }
 
+@keyframes welcomeBreath {
+    0%, 100% { transform: scale(1); box-shadow: var(--shadow-soft); }
+    50% { transform: scale(1.01); box-shadow: var(--shadow-glow); }
+}
+
+/* 欢迎标题 */
 .welcome-content h2 {
-    font-family: 'Noto Serif SC', serif;
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Noto Serif SC', serif;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
     color: var(--text-primary);
+    font-weight: 300; /* 更轻盈的字重 */
+    
+    /* 智慧渐变文字 */
+    background: linear-gradient(135deg, 
+        var(--text-primary) 0%, 
+        var(--accent-color) 50%, 
+        var(--wisdom-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    
+    /* 柔和的文字阴影 */
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
 }
 
+/* 欢迎描述文字 */
 .welcome-content p {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: var(--text-secondary);
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     line-height: 1.8;
+    opacity: 0.9;
+    
+    /* 增加诗意感 */
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 10px rgba(212, 197, 169, 0.2);
 }
 
 .quick-questions {
