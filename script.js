@@ -82,6 +82,12 @@ class AIRinpocheChat {
         
         // 性能监控（鸿蒙系统更敏感的监控）
         this.setupPerformanceMonitoring();
+        
+        // 🔥 鸿蒙系统专用滚动优化
+        if (deviceInfo.isHarmonyOS) {
+            this.setupHarmonyScrollOptimization();
+            this.setupHarmonyMessageOptimization();
+        }
     }
     
     // 性能监控系统
@@ -119,6 +125,173 @@ class AIRinpocheChat {
         setTimeout(() => {
             requestAnimationFrame(measureFPS);
         }, 2000);
+    }
+    
+    // 🔥 鸿蒙系统专用滚动优化系统
+    setupHarmonyScrollOptimization() {
+        let scrollTimer = null;
+        let isScrolling = false;
+        const body = document.body;
+        
+        console.log('🔥 启用鸿蒙系统滚动优化');
+        
+        // 滚动开始时暂停动画
+        const pauseAnimations = () => {
+            if (!isScrolling) {
+                isScrolling = true;
+                body.classList.add('scrolling-harmony');
+                console.log('📜 滚动开始，暂停背景动画');
+            }
+        };
+        
+        // 滚动结束后恢复动画
+        const resumeAnimations = () => {
+            if (isScrolling) {
+                isScrolling = false;
+                body.classList.remove('scrolling-harmony');
+                console.log('📜 滚动结束，恢复背景动画');
+            }
+        };
+        
+        // 滚动事件监听（使用passive优化性能）
+        const handleScroll = () => {
+            pauseAnimations();
+            
+            // 清除之前的定时器
+            if (scrollTimer) {
+                clearTimeout(scrollTimer);
+            }
+            
+            // 设置滚动结束检测（100ms后认为滚动结束）
+            scrollTimer = setTimeout(resumeAnimations, 100);
+        };
+        
+        // 添加滚动监听，使用passive提升性能
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        
+        // 触摸滚动优化（移动端特有）
+        let touchStartY = 0;
+        let isTouching = false;
+        
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+            isTouching = true;
+        }, { passive: true });
+        
+        window.addEventListener('touchmove', (e) => {
+            if (isTouching) {
+                const touchY = e.touches[0].clientY;
+                const deltaY = Math.abs(touchY - touchStartY);
+                
+                // 检测到滚动手势
+                if (deltaY > 10) {
+                    pauseAnimations();
+                }
+            }
+        }, { passive: true });
+        
+        window.addEventListener('touchend', () => {
+            isTouching = false;
+            // 延迟恢复动画，确保滚动完全结束
+            if (scrollTimer) {
+                clearTimeout(scrollTimer);
+            }
+            scrollTimer = setTimeout(resumeAnimations, 150);
+        }, { passive: true });
+        
+        // 页面可见性变化时的优化
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                body.classList.add('page-hidden');
+                console.log('📱 页面隐藏，暂停所有动画');
+            } else {
+                body.classList.remove('page-hidden');
+                console.log('📱 页面显示，恢复动画');
+            }
+        });
+    }
+    
+    // 🔥 鸿蒙系统消息渲染优化
+    setupHarmonyMessageOptimization() {
+        console.log('🔥 启用鸿蒙系统消息优化');
+        
+        // 延迟渲染观察器，减少滚动时的重绘
+        const messageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const message = entry.target;
+                if (entry.isIntersecting) {
+                    // 消息可见时启用完整渲染
+                    message.classList.remove('message-hidden');
+                } else {
+                    // 消息不可见时简化渲染
+                    message.classList.add('message-hidden');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '50px 0px'
+        });
+        
+        // 监听所有消息
+        const observeMessages = () => {
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(message => {
+                messageObserver.observe(message);
+            });
+        };
+        
+        // 初始化观察
+        setTimeout(observeMessages, 1000);
+        
+        // 监听新消息添加
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            const mutationObserver = new MutationObserver(() => {
+                setTimeout(observeMessages, 100);
+            });
+            
+            mutationObserver.observe(chatMessages, {
+                childList: true,
+                subtree: true
+            });
+        }
+        
+        // 预渲染优化：限制同时渲染的消息数量
+        this.setupMessageVirtualization();
+    }
+    
+    // 消息虚拟化 - 只渲染可见区域的消息
+    setupMessageVirtualization() {
+        let renderingMessages = new Set();
+        const MAX_RENDERED_MESSAGES = 20; // 最大同时渲染消息数
+        
+        const optimizeMessageRendering = () => {
+            const messages = document.querySelectorAll('.message');
+            const visibleMessages = [];
+            
+            messages.forEach(message => {
+                const rect = message.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight + 100 && rect.bottom > -100;
+                
+                if (isVisible) {
+                    visibleMessages.push(message);
+                }
+            });
+            
+            // 限制渲染数量
+            if (visibleMessages.length > MAX_RENDERED_MESSAGES) {
+                visibleMessages.slice(MAX_RENDERED_MESSAGES).forEach(message => {
+                    message.style.visibility = 'hidden';
+                });
+            }
+        };
+        
+        // 滚动时触发优化
+        let optimizeTimer;
+        window.addEventListener('scroll', () => {
+            if (optimizeTimer) clearTimeout(optimizeTimer);
+            optimizeTimer = setTimeout(optimizeMessageRendering, 50);
+        }, { passive: true });
     }
 
     initializeElements() {

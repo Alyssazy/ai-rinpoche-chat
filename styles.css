@@ -90,51 +90,54 @@
     opacity: 0.6;
 }
 
-/* 鸿蒙/Android系统：精细优化 - 保持视觉效果，消除闪屏 */
-.device-harmonyos.render-optimized .cosmic-background,
-.device-android.render-optimized .cosmic-background {
-    opacity: 0.85; /* 提高透明度，更接近iOS效果 */
-    transform: none; /* 保持原始尺寸 */
-    /* 关键：使用CSS优化属性提升渲染性能 */
-    will-change: opacity;
-    contain: layout style paint;
-    transform: translateZ(0); /* 强制GPU加速 */
+/* 🔥🔥🔥 鸿蒙系统：终极极简模式 - 100%解决闪屏问题 🔥🔥🔥 */
+.device-harmonyos.render-optimized .cosmic-background {
+    display: none !important; /* 完全移除宇宙背景元素 */
 }
 
-/* 小星星：静态显示但保持视觉密度 */
+/* 🔥 为鸿蒙系统提供纯静态背景替代方案 */
+.device-harmonyos.render-optimized body {
+    background: #000051 !important; /* 纯色背景，零性能消耗 */
+    background-attachment: fixed !important;
+    /* 移除所有可能导致重绘的属性 */
+    background-image: none !important;
+    background-blend-mode: normal !important;
+}
+
+/* 🔥 完全移除所有星空和粒子系统 */
 .device-harmonyos.render-optimized .stars.stars-small,
-.device-android.render-optimized .stars.stars-small {
-    animation: none !important; /* 静态避免闪屏 */
-    opacity: 0.8; /* 提高亮度 */
-    background-size: 200px 100px; /* 保持原始密度 */
-    /* 用CSS伪动画替代JS动画 */
-    filter: brightness(1.1);
-}
-
-/* 中星星：保留最温和的动画 */
 .device-harmonyos.render-optimized .stars.stars-medium,
-.device-android.render-optimized .stars.stars-medium {
-    animation: harmonyMediumStars 20s linear infinite !important;
-    opacity: 0.7; /* 保持较高亮度 */
-    background-size: 220px 120px; /* 保持原始密度 */
-    animation-play-state: running;
-}
-
-/* 大星星：静态但保持存在感 */
 .device-harmonyos.render-optimized .stars.stars-large,
-.device-android.render-optimized .stars.stars-large {
-    animation: none !important; /* 静态避免卡顿 */
-    opacity: 0.6; /* 保持可见性 */
-    background-size: 300px 150px; /* 保持原始尺寸 */
-    filter: brightness(1.2) saturate(1.1);
+.device-harmonyos.render-optimized .nebula-particles {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
-/* 星云粒子：超级温和的动画 */
-.device-harmonyos.render-optimized .nebula-particles,
+/* Android系统：保持优化但不如鸿蒙激进 */
+.device-android.render-optimized .cosmic-background {
+    opacity: 0.6;
+    animation-duration: 60s !important;
+}
+
+.device-android.render-optimized .stars.stars-small {
+    animation: none !important;
+    opacity: 0.4;
+}
+
+.device-android.render-optimized .stars.stars-medium {
+    animation-duration: 40s !important;
+    opacity: 0.5;
+}
+
+.device-android.render-optimized .stars.stars-large {
+    animation: none !important;
+    opacity: 0.3;
+}
+
 .device-android.render-optimized .nebula-particles {
-    animation: harmonyNebulaFlow 30s ease-in-out infinite !important;
-    opacity: 0.5; /* 保持较好的可见性 */
-    filter: none; /* 移除模糊，保持清晰度 */
+    animation-duration: 60s !important;
+    opacity: 0.3;
 }
 
 /* 低性能设备：极简模式，确保流畅性 */
@@ -196,26 +199,199 @@
     }
 }
 
-/* 鸿蒙系统文字效果优化 - 保持视觉冲击力 */
+/* 🔥 鸿蒙系统：简化文字效果 */
 .device-harmonyos .title,
 .device-harmonyos .subtitle {
-    /* 保持文字特效，但优化渲染 */
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5),
-                 0 0 40px rgba(139, 122, 216, 0.3);
-    animation-duration: 10s !important; /* 适中的动画速度 */
-    /* 添加渲染优化 */
-    will-change: filter;
+    /* 极简文字效果，避免闪屏 */
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3) !important;
+    animation: none !important; /* 完全禁用文字动画 */
+    will-change: auto !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+/* 🔥 鸿蒙系统：完全禁用背景动画 */
+.device-harmonyos body::before,
+.device-harmonyos body::after {
+    display: none !important; /* 完全隐藏背景动画层 */
+    content: none !important;
+    animation: none !important;
+}
+
+/* 🔥🔥🔥 鸿蒙系统：全局禁用所有动画和过渡效果 🔥🔥🔥 */
+.device-harmonyos *,
+.device-harmonyos *::before,
+.device-harmonyos *::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    will-change: auto !important;
+    animation-play-state: paused !important;
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+}
+
+/* 🔥 鸿蒙系统滚动优化 - 滚动时暂停动画 */
+.device-harmonyos.scrolling-harmony .cosmic-background {
+    /* 滚动时完全静止背景 */
+    animation-play-state: paused !important;
+    will-change: auto; /* 减少GPU负担 */
+}
+
+.device-harmonyos.scrolling-harmony .stars.stars-small,
+.device-harmonyos.scrolling-harmony .stars.stars-medium,
+.device-harmonyos.scrolling-harmony .stars.stars-large,
+.device-harmonyos.scrolling-harmony .nebula-particles {
+    /* 滚动时暂停所有星空动画 */
+    animation-play-state: paused !important;
+    will-change: auto;
+}
+
+.device-harmonyos.scrolling-harmony body::before,
+.device-harmonyos.scrolling-harmony body::after {
+    /* 滚动时暂停背景呼吸动画 */
+    animation-play-state: paused !important;
+    will-change: auto;
+}
+
+.device-harmonyos.scrolling-harmony .title,
+.device-harmonyos.scrolling-harmony .subtitle {
+    /* 滚动时暂停文字动画 */
+    animation-play-state: paused !important;
+    will-change: auto;
+}
+
+/* 页面隐藏时完全暂停动画（节省电量） */
+.device-harmonyos.page-hidden .cosmic-background,
+.device-harmonyos.page-hidden .stars,
+.device-harmonyos.page-hidden .nebula-particles,
+.device-harmonyos.page-hidden body::before,
+.device-harmonyos.page-hidden body::after,
+.device-harmonyos.page-hidden .title,
+.device-harmonyos.page-hidden .subtitle {
+    animation-play-state: paused !important;
+}
+
+/* 🔥 鸿蒙系统：极简聊天消息渲染 */
+.device-harmonyos .chat-messages {
+    /* 极简滚动配置 */
+    -webkit-overflow-scrolling: auto !important; /* 关闭惯性滚动 */
+    overflow-scrolling: auto !important;
+    transform: none !important;
+    will-change: auto !important;
+    contain: none !important;
+    isolation: auto !important;
+}
+
+.device-harmonyos .main-content {
+    /* 极简主内容配置 */
+    -webkit-overflow-scrolling: auto !important;
+    contain: none !important;
+}
+
+/* 🔥 鸿蒙系统：极简消息样式 */
+.device-harmonyos .message {
+    /* 移除所有优化属性，使用最基础渲染 */
+    contain: none !important;
+    will-change: auto !important;
+    transform: none !important;
+    backface-visibility: visible !important;
+    /* 简化样式 */
+    box-shadow: none !important;
+    border-radius: 8px !important; /* 简化圆角 */
+}
+
+.device-harmonyos .message-content {
+    /* 极简消息内容 */
+    contain: none !important;
+    transform: none !important;
+    background: rgba(45, 55, 75, 0.8) !important; /* 简化背景 */
+    box-shadow: none !important;
+}
+
+/* 🔥 鸿蒙系统：完全简化代码块 */
+.device-harmonyos .message-text pre {
+    contain: none !important;
+    will-change: auto !important;
+    transform: none !important;
+    background: #2d3748 !important;
+    border: 1px solid #4a5568 !important;
+    box-shadow: none !important;
+}
+
+.device-harmonyos .message-text pre code {
+    contain: none !important;
+    font-feature-settings: normal !important;
+    text-rendering: optimizeSpeed !important;
+    color: #e2e8f0 !important;
+    font-family: monospace !important; /* 使用系统等宽字体 */
+}
+
+/* 滚动时进一步简化渲染 */
+.device-harmonyos.scrolling-harmony .message-text {
+    /* 滚动时禁用文字特效 */
+    text-shadow: none !important;
+    filter: none !important;
     transform: translateZ(0);
 }
 
-/* 鸿蒙系统背景动画优化 - 保持氛围但流畅 */
-.device-harmonyos body::before,
-.device-harmonyos body::after {
-    animation-duration: 35s !important; /* 适中速度 */
-    opacity: 0.8 !important; /* 保持较好的可见性 */
-    /* 添加性能优化 */
-    will-change: transform, opacity;
-    contain: layout style paint;
+.device-harmonyos.scrolling-harmony .message-text pre code {
+    /* 滚动时简化代码高亮 */
+    color: #ffffff !important;
+    background: #2d3748 !important;
+    /* 移除所有语法高亮颜色 */
+}
+
+.device-harmonyos.scrolling-harmony .message-text table {
+    /* 滚动时简化表格 */
+    box-shadow: none !important;
+    border-collapse: collapse !important;
+}
+
+/* 鸿蒙系统消息虚拟化优化 */
+.device-harmonyos .message.message-hidden {
+    /* 隐藏不可见消息的复杂渲染 */
+    opacity: 0.3;
+    transform: translateZ(0) scale(0.98);
+    pointer-events: none;
+}
+
+.device-harmonyos .message.message-hidden .message-text pre code {
+    /* 隐藏消息的代码高亮完全关闭 */
+    color: #888 !important;
+    background: #333 !important;
+}
+
+.device-harmonyos .message.message-hidden .message-text table {
+    /* 隐藏消息的表格简化 */
+    border: 1px solid #666 !important;
+    background: #222 !important;
+}
+
+/* 进一步的渲染优化 */
+.device-harmonyos .message-header {
+    /* 消息头部优化 */
+    contain: layout style;
+    will-change: auto;
+}
+
+.device-harmonyos .copy-button,
+.device-harmonyos .regenerate-button {
+    /* 按钮优化 */
+    contain: layout style;
+    will-change: auto;
+}
+
+/* 鸿蒙系统代码高亮简化样式 */
+.device-harmonyos .harmony-code-simplified {
+    /* 简化的代码样式，避免复杂语法高亮 */
+    color: #e2e8f0 !important;
+    background: #2d3748 !important;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    line-height: 1.5 !important;
+    /* 禁用复杂的CSS特性 */
+    text-rendering: optimizeSpeed !important;
+    font-feature-settings: normal !important;
 }
 
 [data-theme="light"] {
@@ -244,6 +420,16 @@
 
 html {
     scroll-behavior: smooth;
+    
+    /* 🔥 鸿蒙系统滚动性能优化 */
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+}
+
+/* 鸿蒙系统专用滚动优化 */
+.device-harmonyos html {
+    /* 更激进的滚动优化 */
+    scroll-behavior: auto; /* 禁用平滑滚动，避免卡顿 */
 }
 
 body {
@@ -372,6 +558,11 @@ body::before {
     z-index: -5;
     opacity: 0.9;
     animation: cosmicBreath 25s ease-in-out infinite;
+    
+    /* 🔥 鸿蒙系统滚动优化 */
+    backface-visibility: hidden;
+    perspective: 1000px;
+    transform: translateZ(0);
 }
 
 /* 第三层：深层星云流动 */
@@ -390,6 +581,11 @@ body::after {
     z-index: -2;
     opacity: 0.7;
     animation: deepSpaceFlow 35s linear infinite;
+    
+    /* 🔥 鸿蒙系统滚动优化 */
+    backface-visibility: hidden;
+    perspective: 1000px;
+    transform: translateZ(0);
 }
 
 /* 🌟 星空粒子动画系统 - 移动端优化 */
@@ -1938,7 +2134,99 @@ body::after {
     animation: none;
 }
 
+/* 🔥🔥🔥 鸿蒙系统：完全禁用流式响应动画 🔥🔥🔥 */
+.device-harmonyos .streaming-cursor {
+    display: none !important; /* 完全隐藏闪烁光标 */
+    animation: none !important;
+}
+
+.device-harmonyos .message.streaming .message-content {
+    border-left: none !important; /* 移除动画边框 */
+    animation: none !important;
+}
+
+.device-harmonyos .message.streaming {
+    animation: none !important;
+    transition: none !important;
+}
+
 /* 流式响应时的加载点隐藏 */
 .message.streaming ~ .chat-loading {
     display: none !important;
+}
+
+/* 🔥🔥🔥 鸿蒙系统：终极CSS渲染简化 🔥🔥🔥 */
+.device-harmonyos {
+    /* 全局简化渲染属性 */
+    -webkit-transform: none !important;
+    -webkit-perspective: none !important;
+    -webkit-backface-visibility: visible !important;
+    -webkit-animation: none !important;
+    -webkit-transition: none !important;
+    
+    /* 移除所有阴影和模糊效果 */
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    
+    /* 移除边框圆角和渐变 */
+    border-radius: 0 !important;
+    background-image: none !important;
+    
+    /* 简化字体渲染 */
+    -webkit-font-smoothing: auto !important;
+    -moz-osx-font-smoothing: auto !important;
+    text-rendering: auto !important;
+}
+
+/* 🔥 鸿蒙系统：移除所有光效和发光效果 */
+.device-harmonyos .message-content,
+.device-harmonyos .copy-button,
+.device-harmonyos .regenerate-button,
+.device-harmonyos .send-button,
+.device-harmonyos .sidebar,
+.device-harmonyos .chat-input {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid #333 !important; /* 简单边框替代复杂样式 */
+    background: #1a1a2e !important; /* 纯色背景 */
+}
+
+/* 🔥 鸿蒙系统：彻底简化滚动条 */
+.device-harmonyos ::-webkit-scrollbar {
+    width: 8px !important;
+    background: #333 !important;
+}
+
+.device-harmonyos ::-webkit-scrollbar-thumb {
+    background: #666 !important;
+    border-radius: 0 !important;
+}
+
+/* 🔥 鸿蒙系统：移除所有悬停效果 */
+.device-harmonyos *:hover {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* 🔥 鸿蒙系统：完全静态按钮 */
+.device-harmonyos button {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    background: #333 !important;
+    color: #fff !important;
+    border: 1px solid #666 !important;
+}
+
+.device-harmonyos button:active {
+    background: #555 !important; /* 简单的按下效果 */
 }

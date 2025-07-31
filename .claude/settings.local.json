@@ -5,7 +5,8 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "Bash(git add:*)",
-      "WebFetch(domain:dreamy-gelato-125b82.netlify.app)"
+      "WebFetch(domain:dreamy-gelato-125b82.netlify.app)",
+      "Bash(python:*)"
     ],
     "deny": []
   }
