@@ -1,7 +1,7 @@
 class AIRinpocheChat {
     constructor() {
         this.apiKey = 'app-vanuZhHLhFmXqz5kG8guNOb7';
-        this.apiBase = 'https://api.dify.ai';
+        this.apiBase = 'https://api.dify.ai/v1';
         this.conversationId = null;
         this.isLoading = false;
         this.lastUserMessage = null; // 保存最后一条用户消息，用于重新生成
@@ -500,12 +500,27 @@ class AIRinpocheChat {
                 sessionStorage.removeItem('conversationId');
                 debugInfo = `\n\n🔧 检测到会话ID可能无效，已重置。请重新发送消息开始新对话。`;
             } else if (error.message.includes('404')) {
-                errorMessage = '会话已过期或失效，已自动开始新对话。'; 
-                // 🔧 404错误表示会话不存在，自动重置
+                // 🔧 404错误表示会话不存在，自动重试新会话
+                console.log('🔄 404错误：会话不存在，自动重试新会话');
                 this.conversationId = null;
                 sessionStorage.removeItem('conversationId');
-                debugInfo = `\n\n🔄 会话ID不存在或已过期，已自动重置。您可以继续发送消息，系统将开始新的对话。`;
-                console.log('🔄 404错误：会话不存在，已重置conversation_id');
+                
+                // 自动重试一次，这次不传conversation_id
+                try {
+                    // 🔧 修复：默认优先使用流式模式重试
+                    if (this.streamingSupported !== false) {
+                        console.log('🔄 重试时使用流式模式');
+                        await this.callDifyAPIStreaming(message);
+                    } else {
+                        console.log('🔄 重试时使用阻塞模式');
+                        const response = await this.callDifyAPIBlocking(message);
+                        this.addMessage('ai', response);
+                    }
+                    return; // 重试成功，直接返回
+                } catch (retryError) {
+                    console.error('重试失败:', retryError);
+                    errorMessage = '会话已过期，重试新会话也失败了。请稍后再试。';
+                }
             } else if (error.message.includes('Failed to fetch')) {
                 errorMessage = '网络连接失败，请检查网络连接或CORS设置。';
             } else if (error.message.includes('请求超时')) {
@@ -538,7 +553,7 @@ class AIRinpocheChat {
         
         this.currentRequest = new AbortController();
         
-        const url = `${this.apiBase}/v1/chat-messages`;
+        const url = `${this.apiBase}/chat-messages`;
         const requestBody = {
             inputs: {},
             query: message,
@@ -546,12 +561,12 @@ class AIRinpocheChat {
             user: 'user-' + Date.now()
         };
 
-        // 🔧 修复：正确传递conversation_id，增加调试信息
+        // 🔧 修复：根据Dify文档，conversation_id为选填，有就传，没有就不传
         if (this.conversationId && this.conversationId.trim() !== '') {
             requestBody.conversation_id = this.conversationId;
-            console.log('📤 流式模式使用现有会话ID:', this.conversationId);
+            console.log('📤 流式模式继续现有会话，ID:', this.conversationId);
         } else {
-            console.log('🆕 流式模式开始新会话，未提供会话ID');
+            console.log('🆕 流式模式开始新会话（不传conversation_id）');
         }
 
         try {
@@ -636,7 +651,7 @@ class AIRinpocheChat {
         
         this.currentRequest = new AbortController();
         
-        const url = `${this.apiBase}/v1/chat-messages`;
+        const url = `${this.apiBase}/chat-messages`;
         const requestBody = {
             inputs: {},
             query: message,
@@ -644,12 +659,12 @@ class AIRinpocheChat {
             user: 'user-' + Date.now()
         };
 
-        // 🔧 修复：正确传递conversation_id，增加调试信息
+        // 🔧 修复：根据Dify文档，conversation_id为选填，有就传，没有就不传
         if (this.conversationId && this.conversationId.trim() !== '') {
             requestBody.conversation_id = this.conversationId;
-            console.log('📤 阻塞模式使用现有会话ID:', this.conversationId);
+            console.log('📤 阻塞模式继续现有会话，ID:', this.conversationId);
         } else {
-            console.log('🆕 阻塞模式开始新会话，未提供会话ID');
+            console.log('🆕 阻塞模式开始新会话（不传conversation_id）');
         }
 
         try {
@@ -1869,14 +1884,14 @@ class AIRinpocheChat {
                             
                             const data = JSON.parse(jsonStr);
                             
-                            // 🔧 修复：正确管理流式响应中的conversation_id
-                            if (data.conversation_id) {
+                            // 🔧 修复：只在message_end事件时保存conversation_id，确保是最终有效的ID
+                            if (data.event === 'message_end' && data.conversation_id) {
                                 if (!this.conversationId) {
                                     this.conversationId = data.conversation_id;
                                     this.saveConversationId();
-                                    console.log('🆕 流式响应中保存新会话ID:', this.conversationId);
+                                    console.log('🆕 消息结束时保存新会话ID:', this.conversationId);
                                 } else if (this.conversationId !== data.conversation_id) {
-                                    console.log('🔄 流式响应中会话ID更新:', this.conversationId, '->', data.conversation_id);
+                                    console.log('🔄 消息结束时会话ID更新:', this.conversationId, '->', data.conversation_id);
                                     this.conversationId = data.conversation_id;
                                     this.saveConversationId();
                                 }
