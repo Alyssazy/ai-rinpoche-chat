@@ -306,6 +306,7 @@ class AIRinpocheChat {
         // 侧边栏元素
         this.sidebar = document.getElementById('sidebar');
         this.sidebarToggle = document.getElementById('sidebarToggle');
+        this.sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.conversationsList = document.getElementById('conversationsList');
         this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
@@ -342,6 +343,7 @@ class AIRinpocheChat {
 
         // 侧边栏事件绑定
         this.sidebarToggle.addEventListener('click', () => this.toggleSidebar());
+        this.sidebarCloseBtn.addEventListener('click', () => this.closeSidebar());
         this.newChatBtn.addEventListener('click', () => this.startNewChat());
         this.clearHistoryBtn.addEventListener('click', () => this.clearAllHistory());
     }
@@ -1519,7 +1521,17 @@ class AIRinpocheChat {
         if (window.innerWidth <= 768) {
             // 移动端：默认收起侧边栏
             this.sidebar.classList.add('collapsed');
-            console.log('📱 移动端模式：侧边栏已收起');
+            
+            // 🔥 HarmonyOS特殊优化
+            if (this.deviceInfo && this.deviceInfo.isHarmonyOS) {
+                console.log('🔥 HarmonyOS系统：确保侧边栏收起，优化触摸体验');
+                // 确保遮罩层正常工作
+                if (this.overlay) {
+                    this.overlay.style.transition = 'all 0.2s ease';
+                }
+            } else {
+                console.log('📱 移动端模式：侧边栏已收起');
+            }
         } else {
             // 桌面端：默认展开侧边栏
             this.sidebar.classList.remove('collapsed');
