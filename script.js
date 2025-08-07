@@ -307,6 +307,7 @@ class AIRinpocheChat {
         this.sidebar = document.getElementById('sidebar');
         this.sidebarToggle = document.getElementById('sidebarToggle');
         this.sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+        this.backupCloseBtn = document.getElementById('backupCloseBtn');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.conversationsList = document.getElementById('conversationsList');
         this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
@@ -343,7 +344,42 @@ class AIRinpocheChat {
 
         // 侧边栏事件绑定
         this.sidebarToggle.addEventListener('click', () => this.toggleSidebar());
-        this.sidebarCloseBtn.addEventListener('click', () => this.closeSidebar());
+        
+        // 🔥 HarmonyOS特殊优化：多种事件绑定确保响应
+        if (this.sidebarCloseBtn) {
+            this.sidebarCloseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔥 关闭按钮被点击 - HarmonyOS优化');
+                this.closeSidebar();
+            });
+            
+            // 添加触摸事件支持（HarmonyOS优化）
+            this.sidebarCloseBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔥 关闭按钮触摸结束 - HarmonyOS优化');
+                this.closeSidebar();
+            });
+        }
+        
+        // 🔥 备用关闭按钮事件绑定（HarmonyOS优化）
+        if (this.backupCloseBtn) {
+            this.backupCloseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔥 备用关闭按钮被点击 - HarmonyOS优化');
+                this.closeSidebar();
+            });
+            
+            this.backupCloseBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔥 备用关闭按钮触摸结束 - HarmonyOS优化');
+                this.closeSidebar();
+            });
+        }
+        
         this.newChatBtn.addEventListener('click', () => this.startNewChat());
         this.clearHistoryBtn.addEventListener('click', () => this.clearAllHistory());
     }
@@ -1480,97 +1516,263 @@ class AIRinpocheChat {
 
     // 侧边栏功能
     setupMobileSidebar() {
-        // 创建遮罩层
+        console.log('🔧 初始化移动端侧边栏系统');
+        
+        // 创建新的遮罩层
         this.createSidebarOverlay();
         
         // 检测屏幕尺寸变化
         this.checkScreenSize();
         window.addEventListener('resize', () => this.checkScreenSize());
         
-        // 点击遮罩层关闭侧边栏
-        this.overlay.addEventListener('click', () => this.closeSidebar());
-        
         // 侧边栏内点击历史对话时在移动端自动关闭
         this.conversationsList.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && e.target.closest('.conversation-item')) {
-                setTimeout(() => this.closeSidebar(), 300); // 延迟关闭让用户看到切换效果
+            if (this.isMobile && e.target.closest('.conversation-item')) {
+                console.log('📱 移动端点击对话项，延迟关闭侧边栏');
+                setTimeout(() => this.closeSidebar(), 300);
             }
         });
+        
+        console.log('✅ 移动端侧边栏系统初始化完成');
     }
 
     createSidebarOverlay() {
-        // 创建遮罩层
+        // 移除旧的遮罩层
+        const existingOverlay = document.querySelector('.sidebar-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+            console.log('🗑️ 移除旧的遮罩层');
+        }
+        
+        // 创建新的遮罩层
         this.overlay = document.createElement('div');
         this.overlay.className = 'sidebar-overlay';
-        this.overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        `;
+        
+        // 强制设置样式
+        Object.assign(this.overlay.style, {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0, 0, 0, 0.6)',
+            zIndex: '9998',
+            opacity: '0',
+            visibility: 'hidden',
+            transition: 'all 0.3s ease',
+            pointerEvents: 'auto',
+            webkitTapHighlightColor: 'transparent'
+        });
+        
         document.body.appendChild(this.overlay);
+        
+        // 绑定多种关闭事件
+        ['click', 'touchend'].forEach(eventType => {
+            this.overlay.addEventListener(eventType, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                console.log(`🔥 遮罩层${eventType}事件触发 - 关闭侧边栏`);
+                this.closeSidebar();
+            }, { passive: false });
+        });
+        
+        console.log('✅ 新遮罩层已创建并绑定事件');
     }
 
     checkScreenSize() {
-        if (window.innerWidth <= 768) {
-            // 移动端：默认收起侧边栏
-            this.sidebar.classList.add('collapsed');
+        this.isMobile = window.innerWidth <= 768;
+        
+        if (this.isMobile) {
+            // 📱 移动端模式：强制重构
+            console.log('📱 检测到移动端，启用全新响应式布局');
             
-            // 🔥 HarmonyOS特殊优化
-            if (this.deviceInfo && this.deviceInfo.isHarmonyOS) {
-                console.log('🔥 HarmonyOS系统：确保侧边栏收起，优化触摸体验');
-                // 确保遮罩层正常工作
-                if (this.overlay) {
-                    this.overlay.style.transition = 'all 0.2s ease';
-                }
-            } else {
-                console.log('📱 移动端模式：侧边栏已收起');
-            }
-        } else {
-            // 桌面端：默认展开侧边栏
+            // 清理旧状态
             this.sidebar.classList.remove('collapsed');
+            
+            // 添加移动端专用类名
+            document.body.classList.add('mobile-mode');
+            this.sidebar.classList.add('mobile-hidden');
+            
+            // 强制隐藏侧边栏
+            this.forceMobileHideSidebar();
+            
+            // 🔥 HarmonyOS特殊处理
+            if (this.deviceInfo && this.deviceInfo.isHarmonyOS) {
+                console.log('🔥 HarmonyOS系统：启用特殊适配模式');
+                document.body.classList.add('harmonyos-mobile');
+                this.setupHarmonyOSMobile();
+            }
+            
+        } else {
+            // 💻 桌面端模式
+            console.log('💻 桌面端模式：侧边栏正常显示');
+            this.isMobile = false;
+            document.body.classList.remove('mobile-mode', 'harmonyos-mobile');
+            this.sidebar.classList.remove('mobile-hidden', 'mobile-open');
+            this.sidebar.classList.remove('collapsed');
+            
             if (this.overlay) {
                 this.overlay.style.opacity = '0';
                 this.overlay.style.visibility = 'hidden';
             }
-            console.log('💻 桌面端模式：侧边栏已展开');
         }
+    }
+    
+    // 🔥 强制隐藏移动端侧边栏
+    forceMobileHideSidebar() {
+        if (!this.isMobile) return;
+        
+        console.log('🔒 强制隐藏移动端侧边栏');
+        
+        // 直接操作样式
+        this.sidebar.style.transform = 'translateX(-100%)';
+        this.sidebar.style.webkitTransform = 'translateX(-100%)';
+        
+        // 更新类名
+        this.sidebar.classList.remove('mobile-open');
+        this.sidebar.classList.add('mobile-hidden');
+        
+        // 隐藏遮罩层
+        if (this.overlay) {
+            this.overlay.style.opacity = '0';
+            this.overlay.style.visibility = 'hidden';
+        }
+        
+        // 恢复页面滚动
+        document.body.style.overflow = '';
+        
+        console.log('✅ 移动端侧边栏已强制隐藏');
+    }
+    
+    // 🔥 HarmonyOS移动端特殊设置
+    setupHarmonyOSMobile() {
+        console.log('🔥 设置HarmonyOS移动端特殊优化');
+        
+        // 全局触摸监听
+        document.addEventListener('touchstart', (e) => {
+            if (this.isMobile && !this.sidebar.contains(e.target)) {
+                // 延迟关闭，避免误触
+                setTimeout(() => {
+                    if (this.sidebar.classList.contains('mobile-open')) {
+                        this.forceMobileHideSidebar();
+                    }
+                }, 100);
+            }
+        }, { passive: true });
+        
+        // HarmonyOS滑动手势
+        let startX = 0;
+        let startY = 0;
+        let isValidSwipe = false;
+        
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            isValidSwipe = true;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!isValidSwipe || !startX) return;
+            
+            const currentX = e.touches[0].clientX;
+            const currentY = e.touches[0].clientY;
+            const diffX = startX - currentX;
+            const diffY = Math.abs(startY - currentY);
+            
+            // 水平滑动距离大于垂直滑动距离
+            if (diffX > 50 && diffY < 100) {
+                if (this.sidebar.classList.contains('mobile-open')) {
+                    console.log('🔥 HarmonyOS向左滑动手势 - 关闭侧边栏');
+                    this.forceMobileHideSidebar();
+                    isValidSwipe = false;
+                }
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchend', () => {
+            startX = 0;
+            startY = 0;
+            isValidSwipe = false;
+        }, { passive: true });
+        
+        console.log('✅ HarmonyOS特殊优化设置完成');
     }
 
     toggleSidebar() {
-        const isCollapsed = this.sidebar.classList.contains('collapsed');
+        console.log('🎯 切换侧边栏状态');
         
-        if (isCollapsed) {
-            this.openSidebar();
+        if (this.isMobile) {
+            // 移动端特殊处理
+            if (this.sidebar.classList.contains('mobile-open')) {
+                this.forceMobileHideSidebar();
+            } else {
+                this.openSidebar();
+            }
         } else {
-            this.closeSidebar();
+            // 桌面端正常处理
+            const isCollapsed = this.sidebar.classList.contains('collapsed');
+            if (isCollapsed) {
+                this.openSidebar();
+            } else {
+                this.closeSidebar();
+            }
         }
     }
 
     openSidebar() {
-        this.sidebar.classList.remove('collapsed');
+        console.log('📂 打开侧边栏');
         
-        // 移动端显示遮罩层
-        if (window.innerWidth <= 768) {
-            this.overlay.style.opacity = '1';
-            this.overlay.style.visibility = 'visible';
-            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        if (this.isMobile) {
+            // 移动端特殊处理
+            this.sidebar.classList.remove('mobile-hidden');
+            this.sidebar.classList.add('mobile-open');
+            
+            // 强制样式更新
+            this.sidebar.style.transform = 'translateX(0)';
+            this.sidebar.style.webkitTransform = 'translateX(0)';
+            
+            // 显示遮罩
+            if (this.overlay) {
+                this.overlay.style.display = 'block';
+                this.overlay.style.visibility = 'visible';
+                setTimeout(() => {
+                    this.overlay.style.opacity = '1';
+                }, 10);
+            }
+            
+            // 禁止页面滚动
+            document.body.style.overflow = 'hidden';
+            
+            console.log('📱 移动端侧边栏已打开');
+        } else {
+            // 桌面端正常处理
+            this.sidebar.classList.remove('collapsed');
+            
+            // 移动端显示遮罩层
+            if (window.innerWidth <= 768) {
+                this.overlay.style.opacity = '1';
+                this.overlay.style.visibility = 'visible';
+                document.body.style.overflow = 'hidden'; // 防止背景滚动
+            }
         }
     }
 
     closeSidebar() {
-        this.sidebar.classList.add('collapsed');
+        console.log('📁 关闭侧边栏');
         
-        // 隐藏遮罩层
-        this.overlay.style.opacity = '0';
-        this.overlay.style.visibility = 'hidden';
-        document.body.style.overflow = ''; // 恢复滚动
+        if (this.isMobile) {
+            // 移动端使用强制关闭方法
+            this.forceMobileHideSidebar();
+        } else {
+            // 桌面端正常处理
+            this.sidebar.classList.add('collapsed');
+            
+            // 隐藏遮罩层
+            this.overlay.style.opacity = '0';
+            this.overlay.style.visibility = 'hidden';
+            document.body.style.overflow = ''; // 恢复滚动
+        }
     }
 
     startNewChat() {
