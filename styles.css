@@ -1290,7 +1290,7 @@ body::after {
 }
 
 .message {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem; /* 从 1.5rem 优化为 1rem，减少消息间距 */
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
@@ -1323,7 +1323,7 @@ body::after {
 .message-content {
     max-width: 70%;
     background: var(--secondary-bg);
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1rem; /* 从 1rem 1.25rem 优化为 0.75rem 1rem，减少内边距 */
     border-radius: 18px;
     border: 1px solid var(--border-color);
     position: relative;
@@ -1339,15 +1339,40 @@ body::after {
 }
 
 .message-text {
-    line-height: 1.6;
+    line-height: 1.4; /* 从 1.6 优化为 1.4，减少行间距 */
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* 🎯 优化段落间距，增加单页内容密度 */
+.message-text p {
+    margin: 0.5rem 0; /* 段落间距优化 */
+    line-height: 1.4;
+}
+
+.message-text p:first-child {
+    margin-top: 0;
+}
+
+.message-text p:last-child {
+    margin-bottom: 0;
+}
+
+/* 优化列表项间距 */
+.message-text ul, .message-text ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.message-text li {
+    margin: 0.25rem 0; /* 列表项间距优化 */
+    line-height: 1.4;
 }
 
 .message-time {
     font-size: 0.75rem;
     color: var(--text-muted);
-    margin-top: 0.5rem;
+    margin-top: 0.25rem; /* 从 0.5rem 优化为 0.25rem */
     text-align: right;
 }
 
@@ -1888,8 +1913,8 @@ body::after {
     background: var(--tertiary-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 1rem;
-    margin: 1rem 0;
+    padding: 0.75rem; /* 从 1rem 优化为 0.75rem */
+    margin: 0.5rem 0; /* 从 1rem 0 优化为 0.5rem 0 */
     overflow-x: auto;
     position: relative;
 }

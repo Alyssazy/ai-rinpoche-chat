@@ -18,6 +18,7 @@ class AIRinpocheChat {
 
         // 📱 智能设备适配系统
         this.initializeDeviceDetection();
+        this.forceInitialSidebarHidden(); // 🎯 强制初始侧边栏隐藏
         this.initializeElements();
         this.setupMobileSidebar();
         this.bindEvents();
@@ -27,6 +28,19 @@ class AIRinpocheChat {
         this.loadConversationHistory();
         this.conversations = this.loadConversations();
         this.updateConversationsList();
+    }
+
+    // 🎯 强制初始侧边栏隐藏（适用于所有设备）
+    forceInitialSidebarHidden() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            // 立即隐藏侧边栏，无论是什么设备
+            sidebar.classList.add('mobile-hidden', 'collapsed');
+            sidebar.style.transform = 'translateX(-100%)';
+            sidebar.style.webkitTransform = 'translateX(-100%)';
+            
+            console.log('🎯 初始侧边栏已强制隐藏（适用于所有设备）');
+        }
     }
 
     // 📱 智能设备检测和适配系统
@@ -1545,9 +1559,11 @@ class AIRinpocheChat {
     }
 
     checkScreenSize() {
-        this.isMobile = window.innerWidth <= 768;
+        // 🔥 特殊处理：HarmonyOS设备（包括Mate XT）无论屏幕大小都视为移动设备
+        const isHarmonyOSDevice = this.deviceInfo && this.deviceInfo.isHarmonyOS;
+        this.isMobile = window.innerWidth <= 768 || isHarmonyOSDevice;
         
-        if (this.isMobile) {
+        if (this.isMobile || isHarmonyOSDevice) {
             // 📱 移动端模式：强制重构
             console.log('📱 检测到移动端，启用全新响应式布局');
             
@@ -1561,11 +1577,17 @@ class AIRinpocheChat {
             // 强制隐藏侧边栏
             this.forceMobileHideSidebar();
             
-            // 🔥 HarmonyOS特殊处理
-            if (this.deviceInfo && this.deviceInfo.isHarmonyOS) {
-                console.log('🔥 HarmonyOS系统：启用特殊适配模式');
+            // 🔥 HarmonyOS特殊处理（包括Mate XT）
+            if (isHarmonyOSDevice) {
+                console.log('🔥 HarmonyOS系统（包括Mate XT）：启用特殊适配模式');
                 document.body.classList.add('harmonyos-mobile');
                 this.setupHarmonyOSMobile();
+                
+                // 🎯 额外强制隐藏（专门针对Mate XT）
+                setTimeout(() => {
+                    this.forceMobileHideSidebar();
+                    console.log('🔥 HarmonyOS延迟强制隐藏完成');
+                }, 100);
             }
             
         } else {
