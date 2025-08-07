@@ -306,8 +306,6 @@ class AIRinpocheChat {
         // 侧边栏元素
         this.sidebar = document.getElementById('sidebar');
         this.sidebarToggle = document.getElementById('sidebarToggle');
-        this.sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
-        this.backupCloseBtn = document.getElementById('backupCloseBtn');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.conversationsList = document.getElementById('conversationsList');
         this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
@@ -345,40 +343,6 @@ class AIRinpocheChat {
         // 侧边栏事件绑定
         this.sidebarToggle.addEventListener('click', () => this.toggleSidebar());
         
-        // 🔥 HarmonyOS特殊优化：多种事件绑定确保响应
-        if (this.sidebarCloseBtn) {
-            this.sidebarCloseBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🔥 关闭按钮被点击 - HarmonyOS优化');
-                this.closeSidebar();
-            });
-            
-            // 添加触摸事件支持（HarmonyOS优化）
-            this.sidebarCloseBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🔥 关闭按钮触摸结束 - HarmonyOS优化');
-                this.closeSidebar();
-            });
-        }
-        
-        // 🔥 备用关闭按钮事件绑定（HarmonyOS优化）
-        if (this.backupCloseBtn) {
-            this.backupCloseBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🔥 备用关闭按钮被点击 - HarmonyOS优化');
-                this.closeSidebar();
-            });
-            
-            this.backupCloseBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🔥 备用关闭按钮触摸结束 - HarmonyOS优化');
-                this.closeSidebar();
-            });
-        }
         
         this.newChatBtn.addEventListener('click', () => this.startNewChat());
         this.clearHistoryBtn.addEventListener('click', () => this.clearAllHistory());
@@ -1605,12 +1569,12 @@ class AIRinpocheChat {
             }
             
         } else {
-            // 💻 桌面端模式
-            console.log('💻 桌面端模式：侧边栏正常显示');
+            // 💻 桌面端模式：默认收起侧边栏
+            console.log('💻 桌面端模式：侧边栏默认收起');
             this.isMobile = false;
             document.body.classList.remove('mobile-mode', 'harmonyos-mobile');
             this.sidebar.classList.remove('mobile-hidden', 'mobile-open');
-            this.sidebar.classList.remove('collapsed');
+            this.sidebar.classList.add('collapsed'); // 🎯 默认收起状态
             
             if (this.overlay) {
                 this.overlay.style.opacity = '0';
