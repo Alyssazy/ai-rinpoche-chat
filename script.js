@@ -316,13 +316,18 @@ class AIRinpocheChat {
         this.chatLoading = document.getElementById('chatLoading');
         this.themeToggle = document.getElementById('themeToggle');
         this.quickButtons = document.querySelectorAll('.quick-btn');
-        
+
         // 侧边栏元素
         this.sidebar = document.getElementById('sidebar');
         this.sidebarToggle = document.getElementById('sidebarToggle');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.conversationsList = document.getElementById('conversationsList');
         this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
+
+        // 🔍 搜索框元素
+        this.searchInput = document.getElementById('searchInput');
+        this.searchClear = document.getElementById('searchClear');
+        this.currentSearchQuery = '';
     }
 
     bindEvents() {
@@ -356,10 +361,19 @@ class AIRinpocheChat {
 
         // 侧边栏事件绑定
         this.sidebarToggle.addEventListener('click', () => this.toggleSidebar());
-        
-        
+
+
         this.newChatBtn.addEventListener('click', () => this.startNewChat());
         this.clearHistoryBtn.addEventListener('click', () => this.clearAllHistory());
+
+        // 🔍 搜索框事件绑定
+        this.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+        this.searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.clearSearch();
+            }
+        });
+        this.searchClear.addEventListener('click', () => this.clearSearch());
     }
 
     initializeTheme() {
@@ -417,6 +431,34 @@ class AIRinpocheChat {
                 gfm: true,    // GitHub风格的Markdown
                 tables: true  // 启用表格支持
             });
+        }
+    }
+
+    // 📐 渲染数学公式（使用KaTeX）
+    renderMathInElement(element) {
+        if (typeof renderMathInElement !== 'undefined') {
+            try {
+                renderMathInElement(element, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},  // 块级公式
+                        {left: '$', right: '$', display: false},   // 行内公式
+                        {left: '\\[', right: '\\]', display: true},
+                        {left: '\\(', right: '\\)', display: false}
+                    ],
+                    throwOnError: false,
+                    errorColor: '#cc0000',
+                    strict: false,
+                    trust: false,
+                    macros: {
+                        "\\RR": "\\mathbb{R}",
+                        "\\NN": "\\mathbb{N}",
+                        "\\ZZ": "\\mathbb{Z}",
+                        "\\QQ": "\\mathbb{Q}"
+                    }
+                });
+            } catch (err) {
+                console.warn('数学公式渲染失败:', err);
+            }
         }
     }
 
@@ -825,7 +867,7 @@ class AIRinpocheChat {
         // AI消息支持Markdown渲染
         if (type === 'ai' && typeof marked !== 'undefined') {
             messageText.innerHTML = marked.parse(content);
-            
+
             // 高亮代码块
             if (typeof hljs !== 'undefined') {
                 messageText.querySelectorAll('pre code').forEach((block) => {
@@ -833,11 +875,14 @@ class AIRinpocheChat {
                     this.addCodeCopyButton(block);
                 });
             }
-            
+
             // 包装表格
             messageText.querySelectorAll('table').forEach((table) => {
                 this.wrapTable(table);
             });
+
+            // 📐 渲染数学公式
+            this.renderMathInElement(messageText);
         } else {
             messageText.textContent = content;
         }
@@ -1450,7 +1495,7 @@ class AIRinpocheChat {
         // AI消息支持Markdown渲染
         if (type === 'ai' && typeof marked !== 'undefined') {
             messageText.innerHTML = marked.parse(content);
-            
+
             // 高亮代码块
             if (typeof hljs !== 'undefined') {
                 messageText.querySelectorAll('pre code').forEach((block) => {
@@ -1458,11 +1503,14 @@ class AIRinpocheChat {
                     this.addCodeCopyButton(block);
                 });
             }
-            
+
             // 包装表格
             messageText.querySelectorAll('table').forEach((table) => {
                 this.wrapTable(table);
             });
+
+            // 📐 渲染数学公式
+            this.renderMathInElement(messageText);
         } else {
             messageText.textContent = content;
         }
@@ -1851,9 +1899,16 @@ class AIRinpocheChat {
 
     updateConversationsList() {
         const currentConversationId = sessionStorage.getItem('currentConversationId');
-        
+
         this.conversationsList.innerHTML = '';
-        
+
+        // 🔍 根据搜索查询过滤对话
+        const filteredConversations = this.currentSearchQuery
+            ? this.conversations.filter(conv =>
+                conv.title.toLowerCase().includes(this.currentSearchQuery.toLowerCase())
+              )
+            : this.conversations;
+
         if (this.conversations.length === 0) {
             const emptyDiv = document.createElement('div');
             emptyDiv.className = 'empty-conversations';
@@ -1866,17 +1921,34 @@ class AIRinpocheChat {
             this.conversationsList.appendChild(emptyDiv);
             return;
         }
-        
-        this.conversations.forEach(conversation => {
+
+        // 显示无搜索结果提示
+        if (filteredConversations.length === 0) {
+            const noResultDiv = document.createElement('div');
+            noResultDiv.className = 'no-search-results';
+            noResultDiv.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p>未找到匹配的对话</p>
+            `;
+            this.conversationsList.appendChild(noResultDiv);
+            return;
+        }
+
+        filteredConversations.forEach(conversation => {
             const conversationDiv = document.createElement('div');
             conversationDiv.className = 'conversation-item';
             if (conversation.id === currentConversationId) {
                 conversationDiv.classList.add('active');
             }
-            
+
+            // 🔍 高亮搜索关键词
+            const highlightedTitle = this.highlightSearchTerm(conversation.title, this.currentSearchQuery);
+
             conversationDiv.innerHTML = `
                 <div class="conversation-info">
-                    <div class="conversation-title">${conversation.title}</div>
+                    <div class="conversation-title">${highlightedTitle}</div>
                     <div class="conversation-time">${this.formatRelativeTime(new Date(conversation.timestamp))}</div>
                 </div>
                 <div class="conversation-actions">
@@ -1887,23 +1959,56 @@ class AIRinpocheChat {
                     </button>
                 </div>
             `;
-            
+
             // 点击对话项切换对话
             conversationDiv.addEventListener('click', (e) => {
                 if (!e.target.closest('.conversation-delete')) {
                     this.switchToConversation(conversation.id);
                 }
             });
-            
+
             // 删除对话
             const deleteBtn = conversationDiv.querySelector('.conversation-delete');
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.deleteConversation(conversation.id);
             });
-            
+
             this.conversationsList.appendChild(conversationDiv);
         });
+    }
+
+    // 🔍 搜索功能方法
+    handleSearch(query) {
+        this.currentSearchQuery = query.trim();
+
+        // 显示/隐藏清除按钮
+        if (this.currentSearchQuery) {
+            this.searchClear.style.display = 'flex';
+        } else {
+            this.searchClear.style.display = 'none';
+        }
+
+        // 更新对话列表显示
+        this.updateConversationsList();
+    }
+
+    clearSearch() {
+        this.searchInput.value = '';
+        this.currentSearchQuery = '';
+        this.searchClear.style.display = 'none';
+        this.updateConversationsList();
+    }
+
+    highlightSearchTerm(text, searchTerm) {
+        if (!searchTerm) return text;
+
+        const regex = new RegExp(`(${this.escapeRegex(searchTerm)})`, 'gi');
+        return text.replace(regex, '<span class="search-highlight">$1</span>');
+    }
+
+    escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     formatRelativeTime(date) {
